@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+/* Global Design System for Ruang Cerita */
+:root {
+  --primary: #c9b183; /* Antique Gold */
+  --primary-hover: #e6cfa8;
+  --bg-dark: #0b0f19;
+  --bg-gradient: radial-gradient(circle at center, #1b263b 0%, #080b11 100%);
+  --text-light: #f3f4f6;
+  --text-muted: #9ca3af;
+  --sans-font: 'Inter', system-ui, -apple-system, sans-serif;
+  --serif-font: 'Playfair Display', Georgia, serif;
+  --display-font: 'Cinzel', serif;
+  
+  color-scheme: dark;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  font-family: var(--sans-font);
+  font-display: swap;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--bg-gradient);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ambient Particle Effects */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(ellipse at 30% 20%, rgba(201, 177, 131, 0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 80%, rgba(139, 115, 85, 0.05) 0%, transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Base custom classes */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--display-font);
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Glow Effect */
+.text-glow {
+  text-shadow: 0 0 10px rgba(201, 177, 131, 0.4);
+}
+
+.vintage-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+  color: var(--primary);
+  width: 100%;
+  opacity: 0.75;
+}
+
+.vintage-divider::before,
+.vintage-divider::after {
+  content: '';
+  flex-grow: 1;
+  height: 1px;
+  background: linear-gradient(
+    to var(--dir, right), 
+    transparent, 
+    var(--primary) 50%, 
+    transparent
+  );
+  max-width: 150px;
+}
+
+.vintage-divider::before {
+  --dir: left;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(11, 15, 25, 0.7);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 177, 131, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 177, 131, 0.6);
+}
