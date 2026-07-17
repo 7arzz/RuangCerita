@@ -748,8 +748,8 @@ export const cerpenData = [
   {
     id: "dibalik lampu studio",
     title: "dibalik lampu studio",
-    subtitle: "7arzz",
-    author: "Unknown",
+    subtitle: "",
+    author: "7arzz",
     genre: "Romance, Slice of Life",
     year_published: "2026",
     theme: {
