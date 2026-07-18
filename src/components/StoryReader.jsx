@@ -92,7 +92,7 @@ export default function StoryReader({ book, onClose }) {
   };
 
   return (
-    <div className={`w-full h-screen top-0 left-0 fixed z-50 overflow-y-auto font-serif transition-colors duration-500 ${getThemeClasses()}`}>
+    <div className={`w-full h-[100dvh] top-0 left-0 fixed z-50 overflow-y-auto font-serif transition-colors duration-500 ${getThemeClasses()}`}>
       
       {/* Sticky Header / Reader Controls */}
       <div className={`sticky top-0 w-full z-10 backdrop-blur-md border-b px-4 py-3 sm:px-8 flex justify-between items-center transition-colors duration-500 ${getHeaderThemeClasses()}`}>
