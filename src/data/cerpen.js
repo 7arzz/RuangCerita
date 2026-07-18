@@ -791,8 +791,8 @@ export const cerpenData = [
   },
   ,
   {
-    id: "lumora-digital-studio-s2",
-    title: "Lumora Digital Studio",
+    id: "dibalik-lampu-studio-s2",
+    title: "Dibalik Lampu Studio",
     subtitle: "Season 2",
     author: "7arzz",
     genre: "Romance, Slice of Life",
