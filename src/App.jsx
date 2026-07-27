@@ -128,14 +128,9 @@ export default function App() {
           </span>
           <span className="tracking-wide">
             Diukir secara digital oleh{" "}
-            <a
-              href="https://github.com/7arzz"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#c9b183] hover:text-[#e6cfa8] underline transition-colors"
-            >
-              Andaru Ilham Amerta [7arzz]
-            </a>{" "}
+            <span className="text-[#c9b183]">
+              Andaru Ilham Amerta
+            </span>{" "}
             dengan dedikasi sastra.
           </span>
         </div>
