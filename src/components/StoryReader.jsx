@@ -1,28 +1,52 @@
 import React, { useState, useEffect, useRef } from "react";
 
-export default function StoryReader({ book, onClose }) {
-  const [fontSize, setFontSize] = useState("text-base");
-  const [theme, setTheme] = useState("dark");
+export default function StoryReader({ book, onClose, onSwitchTo3D }) {
+  const [fontSize, setFontSize] = useState("text-base"); // 'text-sm', 'text-base', 'text-lg', 'text-xl'
+  const [fontFamily, setFontFamily] = useState("serif"); // 'serif' or 'sans'
+  const [theme, setTheme] = useState("light"); // 'dark', 'sepia', 'light'
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [tocOpen, setTocOpen] = useState(false);
+  const [copiedQuote, setCopiedQuote] = useState(false);
+
   const scrollRef = useRef(null);
 
+  // Prevent background document scrolling when reader is active
   useEffect(() => {
-    const prev = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.documentElement.style.position = "fixed";
     return () => {
-      document.body.style.overflow = prev;
-      document.body.style.position = "";
-      document.body.style.width = "";
+      document.body.style.overflow = prevOverflow;
     };
   }, []);
 
+  // Reset scroll on book change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
     }
   }, [book]);
+
+  // Handle scroll progress
+  const handleScroll = (e) => {
+    const target = e.currentTarget;
+    const totalHeight = target.scrollHeight - target.clientHeight;
+    if (totalHeight > 0) {
+      const progress = Math.min(100, Math.max(0, (target.scrollTop / totalHeight) * 100));
+      setScrollProgress(progress);
+    }
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (tocOpen) setTocOpen(false);
+        else onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [tocOpen, onClose]);
 
   const formatParagraphs = (content) => {
     if (!content) return null;
@@ -32,10 +56,10 @@ export default function StoryReader({ book, onClose }) {
 
       if (trimmed === "---") {
         return (
-          <div key={idx} className="flex items-center gap-4 my-8 opacity-30">
-            <div className="flex-1 h-px bg-current" />
-            <div className="w-1.5 h-1.5 rounded-full bg-current" />
-            <div className="flex-1 h-px bg-current" />
+          <div key={idx} className="flex items-center justify-center gap-3 my-12 opacity-30">
+            <div className="w-16 h-[2px] bg-current" />
+            <i className="fa-solid fa-diamond text-[0.45rem]" />
+            <div className="w-16 h-[2px] bg-current" />
           </div>
         );
       }
@@ -47,16 +71,19 @@ export default function StoryReader({ book, onClose }) {
           .map((l) => l.replace(/^>\s?/, "").trim());
 
         const combined = lines.join("<br/>");
-        const withBold = combined
+        const withFormatting = combined
           .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
           .replace(/\*(.*?)\*/g, "<em>$1</em>");
 
         return (
           <blockquote
             key={idx}
-            className="border-l-4 pl-4 my-6 italic opacity-80 leading-relaxed"
-            style={{ borderColor: book?.theme?.accentColor || "#c9b183" }}
-            dangerouslySetInnerHTML={{ __html: withBold }}
+            className="border-l-2 pl-5 my-8 italic text-lg leading-relaxed opacity-90 rounded-r-lg py-2"
+            style={{
+              borderColor: accent,
+              backgroundColor: theme === "dark" ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"
+            }}
+            dangerouslySetInnerHTML={{ __html: withFormatting }}
           />
         );
       }
@@ -66,29 +93,34 @@ export default function StoryReader({ book, onClose }) {
         return (
           <h4
             key={idx}
-            className="text-lg font-sans font-bold mt-10 mb-3 opacity-90"
+            className="text-lg font-bold mt-10 mb-3 tracking-wide"
+            style={{ fontFamily: "var(--font-sans, system-ui)" }}
           >
             {text}
           </h4>
         );
       }
+
       if (trimmed.startsWith("## ")) {
         const text = trimmed.replace(/^##\s+/, "");
         return (
           <h3
             key={idx}
-            className="text-xl font-sans font-bold mt-12 mb-4 opacity-90"
+            className="text-xl font-bold mt-12 mb-4 tracking-wide"
+            style={{ fontFamily: "var(--font-editorial, serif)" }}
           >
             {text}
           </h3>
         );
       }
+
       if (trimmed.startsWith("# ")) {
         const text = trimmed.replace(/^#\s+/, "");
         return (
           <h2
             key={idx}
-            className="text-2xl font-sans font-bold mt-14 mb-5 opacity-95"
+            className="text-2xl font-bold mt-14 mb-5"
+            style={{ fontFamily: "var(--font-display, serif)" }}
           >
             {text}
           </h2>
@@ -103,7 +135,7 @@ export default function StoryReader({ book, onClose }) {
       return (
         <p
           key={idx}
-          className="mb-5 leading-[1.9]"
+          className="mb-6 leading-[2] tracking-[0.01em]"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       );
@@ -123,18 +155,19 @@ export default function StoryReader({ book, onClose }) {
       .filter((key) => key.startsWith("page"))
       .sort(
         (a, b) =>
-          parseInt(a.replace("page", "")) - parseInt(b.replace("page", "")),
+          parseInt(a.replace("page", ""), 10) - parseInt(b.replace("page", ""), 10)
       );
 
     let currentChapter = "";
 
-    pageKeys.forEach((key) => {
+    pageKeys.forEach((key, index) => {
       const page = book.pages[key];
-      if (page.chapter !== currentChapter) {
+      if (page.chapter && page.chapter !== currentChapter) {
         pagesArray.push({
           type: "chapter_header",
           chapter: page.chapter,
           title: page.title,
+          id: `chapter-${index}`
         });
         currentChapter = page.chapter;
       }
@@ -145,202 +178,411 @@ export default function StoryReader({ book, onClose }) {
   };
 
   const pagesContent = getPagesContent();
-  const accent = book?.theme?.accentColor || "#c9b183";
+  const chaptersList = pagesContent.filter((p) => p.type === "chapter_header");
+  const accent = book?.theme?.accentColor || "#c5a059";
 
-  const theme_bg = {
-    dark: "#0a0f18",
-    sepia: "#f4ecd8",
-    light: "#f8fafc",
+  // Themes Color Palettes
+  const themeStyles = {
+    dark: {
+      bg: "#080b11",
+      surface: "rgba(14, 19, 29, 0.94)",
+      text: "#f0eae1",
+      textMuted: "#9da4b2",
+      border: "rgba(255, 255, 255, 0.08)",
+      accent: "#c5a059",
+      btnActive: "#c5a059",
+      btnActiveText: "#080b11"
+    },
+    sepia: {
+      bg: "#f4ece1",
+      surface: "rgba(244, 236, 225, 0.94)",
+      text: "#3e3124",
+      textMuted: "#796652",
+      border: "rgba(139, 115, 85, 0.2)",
+      accent: "#9c6b32",
+      btnActive: "#9c6b32",
+      btnActiveText: "#ffffff"
+    },
+    light: {
+      bg: "#eef2f7",
+      surface: "rgba(238, 242, 247, 0.94)",
+      text: "#1e293b",
+      textMuted: "#64748b",
+      border: "rgba(255, 255, 255, 0.9)",
+      accent: "#d97706",
+      btnActive: "#d97706",
+      btnActiveText: "#ffffff"
+    }
   };
-  const theme_text = {
-    dark: "#cbd5e1",
-    sepia: "#5c4b37",
-    light: "#0f172a",
-  };
-  const theme_header = {
-    dark: "rgba(10,15,24,0.92)",
-    sepia: "rgba(244,236,216,0.92)",
-    light: "rgba(248,250,252,0.92)",
-  };
-  const theme_border = {
-    dark: "rgba(255,255,255,0.07)",
-    sepia: "#d4c5b0",
-    light: "#e2e8f0",
-  };
+
+  const currentTheme = themeStyles[theme];
 
   const fontSizeMap = {
-    "text-sm": "15px",
-    "text-base": "17px",
-    "text-lg": "19px",
-    "text-xl": "21px",
+    "text-sm": { size: "15px", line: "1.9" },
+    "text-base": { size: "17.5px", line: "2.0" },
+    "text-lg": { size: "20px", line: "2.05" },
+    "text-xl": { size: "23px", line: "2.1" }
+  };
+
+  const fontConfig = fontFamily === "serif"
+    ? 'Newsreader, Playfair Display, Georgia, serif'
+    : 'Plus Jakarta Sans, system-ui, -apple-system, sans-serif';
+
+  const scrollToChapter = (chapterId) => {
+    const el = document.getElementById(chapterId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+      setTocOpen(false);
+    }
   };
 
   return (
     <div
+      data-ui="true"
       style={{
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        backgroundColor: theme_bg[theme],
-        color: theme_text[theme],
+        backgroundColor: currentTheme.bg,
+        color: currentTheme.text,
         display: "flex",
         flexDirection: "column",
-        transition: "background-color 0.4s, color 0.4s",
-        fontFamily: 'Georgia, "Times New Roman", serif',
+        transition: "background-color 0.35s ease, color 0.35s ease",
+        fontFamily: fontConfig
       }}
     >
-      {/* ── Sticky top bar ── */}
+      {/* ── Scroll Progress Bar ── */}
       <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "3px",
+          backgroundColor: "rgba(0,0,0,0.1)",
+          zIndex: 100
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${scrollProgress}%`,
+            backgroundColor: currentTheme.accent,
+            transition: "width 0.1s linear"
+          }}
+        />
+      </div>
+
+      {/* ── Sticky Top Bar ── */}
+      <header
         style={{
           flexShrink: 0,
           position: "sticky",
           top: 0,
-          zIndex: 10,
-          backgroundColor: theme_header[theme],
-          borderBottom: `1px solid ${theme_border[theme]}`,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
+          zIndex: 90,
+          backgroundColor: currentTheme.surface,
+          borderBottom: `1px solid ${currentTheme.border}`,
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           padding: "10px 16px",
+          gap: "12px",
+          fontFamily: "Plus Jakarta Sans, system-ui, sans-serif"
         }}
       >
-        {/* Back button */}
-        <button
-          onClick={onClose}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            fontSize: "14px",
-            fontFamily: "system-ui, sans-serif",
-            fontWeight: 500,
-            opacity: 0.75,
-            background: "none",
-            border: "none",
-            color: "inherit",
-            cursor: "pointer",
-            padding: "4px 0",
-          }}
-        >
-          ← Kembali
-        </button>
+        {/* Left: Back & Table of contents */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            onClick={onClose}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "13px",
+              fontWeight: 600,
+              padding: "6px 12px",
+              borderRadius: "9999px",
+              backgroundColor: "rgba(128,128,128,0.1)",
+              border: `1px solid ${currentTheme.border}`,
+              color: "inherit",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            title="Kembali ke Beranda (Esc)"
+          >
+            ← <span className="hidden sm:inline">Kembali</span>
+          </button>
 
-        {/* Controls: font size + theme */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* Font size */}
+          {chaptersList.length > 0 && (
+            <button
+              onClick={() => setTocOpen(!tocOpen)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "13px",
+                fontWeight: 600,
+                padding: "6px 12px",
+                borderRadius: "9999px",
+                backgroundColor: tocOpen ? currentTheme.accent : "rgba(128,128,128,0.1)",
+                color: tocOpen ? currentTheme.btnActiveText : "inherit",
+                border: `1px solid ${currentTheme.border}`,
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+              title="Daftar Bab"
+            >
+              <i className="fa-solid fa-list-ul text-xs"></i>
+              <span className="hidden sm:inline">Daftar Bab</span>
+            </button>
+          )}
+
+          {/* Switch to 3D Book */}
+          {onSwitchTo3D && (
+            <button
+              onClick={() => onSwitchTo3D(book)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "12.5px",
+                fontWeight: 700,
+                padding: "6px 12px",
+                borderRadius: "9999px",
+                backgroundColor: "rgba(197, 160, 89, 0.15)",
+                color: currentTheme.accent,
+                border: `1px solid ${currentTheme.accent}`,
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+              title="Beralih ke format buku 3D interaktif"
+            >
+              <i className="fa-solid fa-book-open text-xs"></i>
+              <span className="hidden md:inline">Mode 3D</span>
+            </button>
+          )}
+        </div>
+
+        {/* Center: Title snippet (hidden on small screens) */}
+        <div className="hidden lg:flex flex-col items-center max-w-xs text-center">
+          <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.05em", opacity: 0.9 }}>
+            {book.title}
+          </span>
+          <span style={{ fontSize: "10.5px", color: currentTheme.textMuted }}>
+            {Math.round(scrollProgress)}% Selesai
+          </span>
+        </div>
+
+        {/* Right: Controls (Font style, Font size, Theme) */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {/* Font Serif vs Sans Toggle */}
           <div
             style={{
               display: "flex",
-              gap: "4px",
-              background: "rgba(128,128,128,0.15)",
-              borderRadius: "999px",
-              padding: "3px",
+              backgroundColor: "rgba(128,128,128,0.12)",
+              borderRadius: "9999px",
+              padding: "2px"
+            }}
+          >
+            <button
+              onClick={() => setFontFamily("serif")}
+              style={{
+                padding: "4px 8px",
+                fontSize: "11px",
+                fontWeight: 700,
+                borderRadius: "9999px",
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: fontFamily === "serif" ? currentTheme.btnActive : "transparent",
+                color: fontFamily === "serif" ? currentTheme.btnActiveText : "inherit",
+                transition: "all 0.2s"
+              }}
+              title="Font Serif Sastra (Newsreader)"
+            >
+              Serif
+            </button>
+            <button
+              onClick={() => setFontFamily("sans")}
+              style={{
+                padding: "4px 8px",
+                fontSize: "11px",
+                fontWeight: 700,
+                borderRadius: "9999px",
+                border: "none",
+                cursor: "pointer",
+                backgroundColor: fontFamily === "sans" ? currentTheme.btnActive : "transparent",
+                color: fontFamily === "sans" ? currentTheme.btnActiveText : "inherit",
+                transition: "all 0.2s"
+              }}
+              title="Font Sans Modern"
+            >
+              Sans
+            </button>
+          </div>
+
+          {/* Font Sizes */}
+          <div
+            style={{
+              display: "flex",
+              backgroundColor: "rgba(128,128,128,0.12)",
+              borderRadius: "9999px",
+              padding: "2px"
             }}
           >
             {[
-              { key: "text-sm", label: "A", style: { fontSize: "11px" } },
-              { key: "text-base", label: "A", style: { fontSize: "14px" } },
-              { key: "text-lg", label: "A", style: { fontSize: "17px" } },
-            ].map(({ key, label, style }) => (
+              { key: "text-sm", label: "A-", title: "Kecil (15px)" },
+              { key: "text-base", label: "A", title: "Normal (17.5px)" },
+              { key: "text-lg", label: "A+", title: "Besar (20px)" }
+            ].map(({ key, label, title }) => (
               <button
                 key={key}
                 onClick={() => setFontSize(key)}
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 28,
+                  height: 28,
                   borderRadius: "50%",
                   border: "none",
                   cursor: "pointer",
+                  fontSize: "12px",
                   fontWeight: 700,
-                  fontFamily: "system-ui, sans-serif",
-                  backgroundColor: fontSize === key ? accent : "transparent",
-                  color: fontSize === key ? "#000" : "inherit",
-                  opacity: fontSize === key ? 1 : 0.55,
-                  transition: "all 0.2s",
-                  ...style,
+                  backgroundColor: fontSize === key ? currentTheme.btnActive : "transparent",
+                  color: fontSize === key ? currentTheme.btnActiveText : "inherit",
+                  transition: "all 0.2s"
                 }}
+                title={title}
               >
                 {label}
               </button>
             ))}
           </div>
 
-          {/* Divider */}
-          <div
-            style={{
-              width: 1,
-              height: 20,
-              background: "currentColor",
-              opacity: 0.2,
-            }}
-          />
-
-          {/* Theme swatches */}
-          <div style={{ display: "flex", gap: "8px" }}>
+          {/* Theme Swatches */}
+          <div style={{ display: "flex", gap: "6px", marginLeft: "4px" }}>
             {[
-              { key: "light", bg: "#f8fafc", border: "#cbd5e1" },
-              { key: "sepia", bg: "#f4ecd8", border: "#d4c5b0" },
-              { key: "dark", bg: "#1b263b", border: "#0a0f18" },
-            ].map(({ key, bg, border }) => (
+              { key: "dark", bg: "#080b11", border: "#334155", title: "Malam Obsidian" },
+              { key: "sepia", bg: "#f4ece1", border: "#8b7355", title: "Kertas Sepia" },
+              { key: "light", bg: "#faf8f5", border: "#94a3b8", title: "Parchment Bersih" }
+            ].map(({ key, bg, border, title }) => (
               <button
                 key={key}
                 onClick={() => setTheme(key)}
                 style={{
-                  width: 24,
-                  height: 24,
+                  width: 22,
+                  height: 22,
                   borderRadius: "50%",
                   backgroundColor: bg,
-                  border: `1px solid ${border}`,
+                  border: `2px solid ${theme === key ? currentTheme.accent : border}`,
                   cursor: "pointer",
-                  outline: theme === key ? `2.5px solid ${accent}` : "none",
-                  outlineOffset: "2px",
-                  transition: "outline 0.2s",
+                  transform: theme === key ? "scale(1.15)" : "scale(1)",
+                  transition: "all 0.2s"
                 }}
+                title={title}
               />
             ))}
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* ── Scrollable content area ── */}
+      {/* ── Table of Contents Dropdown Drawer ── */}
+      {tocOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 56,
+            left: 16,
+            zIndex: 95,
+            width: "300px",
+            maxHeight: "75vh",
+            overflowY: "auto",
+            backgroundColor: currentTheme.surface,
+            border: `1px solid ${currentTheme.border}`,
+            borderRadius: "16px",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
+            padding: "16px",
+            backdropFilter: "blur(20px)"
+          }}
+        >
+          <div
+            style={{
+              fontSize: "12px",
+              fontWeight: 800,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: currentTheme.accent,
+              marginBottom: "12px",
+              paddingBottom: "8px",
+              borderBottom: `1px solid ${currentTheme.border}`
+            }}
+          >
+            Daftar Bab & Isi
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            {chaptersList.map((chap, i) => (
+              <button
+                key={i}
+                onClick={() => scrollToChapter(chap.id)}
+                style={{
+                  textAlign: "left",
+                  padding: "8px 10px",
+                  borderRadius: "8px",
+                  backgroundColor: "rgba(128,128,128,0.06)",
+                  border: "none",
+                  color: "inherit",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "2px",
+                  transition: "all 0.15s"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(128,128,128,0.18)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(128,128,128,0.06)";
+                }}
+              >
+                <span style={{ fontSize: "10.5px", color: currentTheme.accent, fontWeight: 700 }}>
+                  {chap.chapter}
+                </span>
+                <span style={{ fontWeight: 600 }}>{chap.title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Scrollable Story Text Container ── */}
       <div
         ref={scrollRef}
+        onScroll={handleScroll}
         style={{
           flex: 1,
           overflowY: "auto",
           overflowX: "hidden",
-          WebkitOverflowScrolling: "touch", // smooth momentum scroll on iOS
+          WebkitOverflowScrolling: "touch"
         }}
       >
-        {/* Book hero / cover block */}
+        {/* Cover Hero Block */}
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "64px 20px 48px",
-            position: "relative",
+            maxWidth: "720px",
+            margin: "0 auto",
+            padding: "80px 24px 60px",
+            textAlign: "center",
+            position: "relative"
           }}
         >
-          {/* Gradient accent */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: `linear-gradient(to bottom, ${accent}18, transparent 60%)`,
-              pointerEvents: "none",
-            }}
-          />
-          {/* Genres */}
+          {/* Genre Badges */}
           <div
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "10px",
+              gap: "8px",
               justifyContent: "center",
-              marginBottom: "12px",
+              marginBottom: "16px"
             }}
           >
             {book.genre &&
@@ -349,85 +591,91 @@ export default function StoryReader({ book, onClose }) {
                   key={i}
                   style={{
                     fontSize: "11px",
-                    letterSpacing: "0.3em",
+                    letterSpacing: "0.22em",
                     textTransform: "uppercase",
-                    color: accent,
-                    fontFamily: "system-ui, sans-serif",
-                    opacity: 0.9,
+                    color: currentTheme.accent,
+                    fontFamily: "Plus Jakarta Sans, system-ui, sans-serif",
+                    fontWeight: 700,
+                    opacity: 0.95
                   }}
                 >
                   {g.trim()}
                 </span>
               ))}
           </div>
-          {/* Title */}
+
+          {/* Book Title */}
           <h1
             style={{
-              fontSize: "clamp(28px, 8vw, 52px)",
-              fontWeight: 900,
-              textAlign: "center",
-              lineHeight: 1.2,
-              marginBottom: "12px",
-              maxWidth: "700px",
+              fontSize: "clamp(34px, 7vw, 56px)",
+              fontFamily: "Cinzel, Playfair Display, serif",
+              fontWeight: 800,
+              lineHeight: 1.15,
+              marginBottom: "16px",
+              letterSpacing: "-0.01em"
             }}
           >
             {book.title}
           </h1>
+
           {/* Subtitle */}
           {book.subtitle && (
-            <h2
+            <p
               style={{
-                fontSize: "clamp(14px, 4vw, 20px)",
+                fontSize: "clamp(16px, 3.5vw, 21px)",
+                fontFamily: "Newsreader, Playfair Display, Georgia, serif",
                 fontStyle: "italic",
-                opacity: 0.75,
-                textAlign: "center",
-                marginBottom: "20px",
+                opacity: 0.82,
+                lineHeight: 1.5,
+                maxWidth: "600px",
+                margin: "0 auto 28px"
               }}
             >
               {book.subtitle}
-            </h2>
+            </p>
           )}
-          {/* Author separator */}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div
-              style={{
-                width: 40,
-                height: 1,
-                background: "currentColor",
-                opacity: 0.3,
-              }}
-            />
-            <span
-              style={{
-                fontFamily: "system-ui, sans-serif",
-                fontSize: "12px",
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                fontWeight: 600,
-                opacity: 0.85,
-              }}
-            >
-              {book.author}
+
+          {/* Author Badge */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "6px 18px",
+              borderRadius: "9999px",
+              backgroundColor: "rgba(128,128,128,0.08)",
+              border: `1px solid ${currentTheme.border}`,
+              fontSize: "13px",
+              fontFamily: "Plus Jakarta Sans, system-ui, sans-serif"
+            }}
+          >
+            <i className="fa-solid fa-feather-pointed" style={{ color: currentTheme.accent }}></i>
+            <span>
+              Ditulis oleh <strong>{book.author}</strong>
             </span>
-            <div
-              style={{
-                width: 40,
-                height: 1,
-                background: "currentColor",
-                opacity: 0.3,
-              }}
-            />
+            <span style={{ opacity: 0.4 }}>•</span>
+            <span style={{ color: currentTheme.textMuted }}>Edisi {book.year_published || "2026"}</span>
           </div>
+
+          <div
+            style={{
+              width: "60px",
+              height: "2px",
+              backgroundColor: currentTheme.accent,
+              margin: "40px auto 0",
+              opacity: 0.6
+            }}
+          />
         </div>
 
-        {/* Story content */}
-        <div
+        {/* Main Prose Text Area */}
+        <main
           style={{
             maxWidth: "680px",
             margin: "0 auto",
-            padding: `0 20px 80px`,
-            fontSize: fontSizeMap[fontSize] || "17px",
-            lineHeight: 1.85,
+            padding: "0 24px 100px",
+            fontSize: fontSizeMap[fontSize].size,
+            lineHeight: fontSizeMap[fontSize].line
           }}
         >
           {pagesContent.map((item, idx) => {
@@ -436,40 +684,43 @@ export default function StoryReader({ book, onClose }) {
                 <div
                   key={idx}
                   style={{
-                    margin: "48px 0",
-                    padding: "32px 24px",
-                    borderTop: `1px solid currentColor`,
-                    borderBottom: `1px solid currentColor`,
-                    opacity: 0.8,
+                    margin: "40px 0 60px",
+                    padding: "36px 28px",
+                    borderTop: `1px solid ${currentTheme.border}`,
+                    borderBottom: `1px solid ${currentTheme.border}`,
                     textAlign: "center",
+                    backgroundColor: "rgba(128,128,128,0.03)",
+                    borderRadius: "8px"
                   }}
                 >
                   <div
                     style={{
-                      fontSize: "1.15em",
+                      fontSize: "1.2em",
                       fontStyle: "italic",
                       lineHeight: 1.7,
-                      marginBottom: "12px",
+                      marginBottom: "14px"
                     }}
                     dangerouslySetInnerHTML={{
                       __html: item.content.quote.replace(
                         /\*\*(.*?)\*\*/g,
-                        "<strong>$1</strong>",
-                      ),
+                        "<strong>$1</strong>"
+                      )
                     }}
                   />
                   <div
                     style={{
-                      fontSize: "0.8em",
-                      fontFamily: "system-ui, sans-serif",
+                      fontSize: "0.85em",
+                      fontFamily: "Plus Jakarta Sans, system-ui, sans-serif",
                       letterSpacing: "0.15em",
                       textTransform: "uppercase",
+                      color: currentTheme.accent,
+                      fontWeight: 600
                     }}
                     dangerouslySetInnerHTML={{
                       __html: item.content.author.replace(
                         /\*(.*?)\*/g,
-                        "<em>$1</em>",
-                      ),
+                        "<em>$1</em>"
+                      )
                     }}
                   />
                 </div>
@@ -480,42 +731,44 @@ export default function StoryReader({ book, onClose }) {
               return (
                 <div
                   key={idx}
+                  id={item.id}
                   style={{
-                    marginTop: "72px",
-                    marginBottom: "40px",
+                    marginTop: "84px",
+                    marginBottom: "44px",
                     textAlign: "center",
+                    scrollMarginTop: "90px"
                   }}
                 >
                   <span
                     style={{
-                      fontSize: "11px",
-                      fontFamily: "system-ui, sans-serif",
+                      fontSize: "12px",
+                      fontFamily: "Plus Jakarta Sans, system-ui, sans-serif",
                       letterSpacing: "0.25em",
                       textTransform: "uppercase",
                       fontWeight: 700,
-                      opacity: 0.55,
+                      color: currentTheme.accent,
                       display: "block",
-                      marginBottom: "8px",
+                      marginBottom: "8px"
                     }}
                   >
                     {item.chapter}
                   </span>
                   <h3
                     style={{
-                      fontSize: "clamp(22px, 6vw, 34px)",
+                      fontSize: "clamp(24px, 5.5vw, 36px)",
+                      fontFamily: "Cinzel, Playfair Display, serif",
                       fontWeight: 700,
-                      lineHeight: 1.3,
+                      lineHeight: 1.25
                     }}
                   >
                     {item.title}
                   </h3>
                   <div
                     style={{
-                      width: 56,
-                      height: 4,
-                      borderRadius: 4,
-                      backgroundColor: accent,
-                      margin: "20px auto 0",
+                      width: "48px",
+                      height: "1px",
+                      backgroundColor: currentTheme.border,
+                      margin: "24px auto 0"
                     }}
                   />
                 </div>
@@ -528,51 +781,86 @@ export default function StoryReader({ book, onClose }) {
 
             return null;
           })}
-        </div>
+        </main>
 
-        {/* Footer */}
-        <div
+        {/* ── Finished Reading Footer ── */}
+        <footer
           style={{
             textAlign: "center",
-            padding: "40px 20px 60px",
-            borderTop: "1px solid",
-            borderColor: "rgba(128,128,128,0.2)",
-            opacity: 0.7,
+            padding: "50px 24px 80px",
+            borderTop: `1px solid ${currentTheme.border}`,
+            maxWidth: "680px",
+            margin: "0 auto",
+            fontFamily: "Plus Jakarta Sans, system-ui, sans-serif"
           }}
         >
+          <div style={{ color: currentTheme.accent, marginBottom: "16px" }}>
+            <i className="fa-solid fa-feather-pointed" style={{ fontSize: "1.5rem" }} />
+          </div>
+          <h4
+            style={{
+              fontSize: "18px",
+              fontFamily: "Cinzel, serif",
+              fontWeight: 700,
+              marginBottom: "8px"
+            }}
+          >
+            Akhir dari Lembaran Kisah Ini
+          </h4>
           <p
             style={{
-              fontFamily: "system-ui, sans-serif",
-              fontSize: "11px",
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              marginBottom: "20px",
-            }}
-          >
-            Akhir dari bacaan.
-          </p>
-          <button
-            onClick={onClose}
-            style={{
-              padding: "12px 32px",
-              borderRadius: "999px",
-              fontFamily: "system-ui, sans-serif",
               fontSize: "13px",
-              fontWeight: 700,
-              border: "none",
-              cursor: "pointer",
-              backgroundColor: theme === "dark" ? "#e2e8f0" : "#0f172a",
-              color: theme === "dark" ? "#0f172a" : "#f8fafc",
-              transition: "transform 0.2s",
+              color: currentTheme.textMuted,
+              marginBottom: "28px",
+              maxWidth: "400px",
+              margin: "0 auto 28px"
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.transform = "scale(1.05)")
-            }
-            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
           >
-            Kembali ke Beranda
-          </button>
-        </div>
+            Terima kasih telah membaca. Setiap kata yang selesai dibaca adalah kenangan yang hidup di ingatan.
+          </p>
+
+          <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: "12px 28px",
+                borderRadius: "9999px",
+                fontSize: "13px",
+                fontWeight: 700,
+                backgroundColor: currentTheme.btnActive,
+                color: currentTheme.btnActiveText,
+                border: "none",
+                cursor: "pointer",
+                transition: "transform 0.2s"
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              Kembali ke Rak Buku
+            </button>
+
+            {onSwitchTo3D && (
+              <button
+                onClick={() => onSwitchTo3D(book)}
+                style={{
+                  padding: "12px 24px",
+                  borderRadius: "9999px",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  backgroundColor: "rgba(128,128,128,0.1)",
+                  border: `1px solid ${currentTheme.border}`,
+                  color: "inherit",
+                  cursor: "pointer",
+                  transition: "transform 0.2s"
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                Buka Versi 3D
+              </button>
+            )}
+          </div>
+        </footer>
       </div>
     </div>
   );
