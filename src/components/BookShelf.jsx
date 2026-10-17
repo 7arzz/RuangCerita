@@ -103,7 +103,7 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
 
       {/* View 1: 3D Hardcover Book Shelves (Claymorphic) */}
       {viewMode === 'shelf' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
           {books.map((book) => {
             const stats = getReadingStats(book);
             const style = getThemeAesthetic(book.theme?.styleClass);
@@ -115,21 +115,21 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
               >
                 {/* Book Jacket Cover Simulation */}
                 <div
-                  className={`relative p-8 ${style.bgSurface} flex flex-col justify-between min-h-[300px] overflow-hidden`}
+                  className={`relative p-5 sm:p-8 ${style.bgSurface} flex flex-col justify-between min-h-[260px] sm:min-h-[300px] overflow-hidden`}
                 >
                   {/* Subtle Spine Emboss & Book Depth Highlight */}
-                  <div className={`absolute top-0 left-0 w-3.5 h-full ${style.bgSpine} pointer-events-none z-20 shadow-inner opacity-90`}></div>
+                  <div className={`absolute top-0 left-0 w-3 sm:w-3.5 h-full ${style.bgSpine} pointer-events-none z-20 shadow-inner opacity-90`}></div>
 
                   {/* Top Header: Category Tag & Clay Icon */}
-                  <div className="relative z-10 flex justify-between items-start gap-3 pl-2">
+                  <div className="relative z-10 flex justify-between items-start gap-2 pl-1.5 sm:pl-2">
                     <span
-                      className="text-[0.68rem] tracking-[0.22em] uppercase font-sans font-bold"
+                      className="text-[0.65rem] sm:text-[0.68rem] tracking-[0.18em] sm:tracking-[0.22em] uppercase font-sans font-bold"
                       style={{ color: style.accent }}
                     >
                       {book.year_published || '2026'} • {style.label}
                     </span>
                     <div
-                      className="w-9 h-9 rounded-2xl flex items-center justify-center bg-white/90 shadow-sm text-sm"
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center bg-white/90 shadow-sm text-xs sm:text-sm shrink-0"
                       style={{ color: style.accent }}
                     >
                       <i className={`fa-solid ${style.icon}`}></i>
@@ -137,22 +137,22 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
                   </div>
 
                   {/* Center: Title & Subtitle */}
-                  <div className="relative z-10 my-4 text-center pl-2">
-                    <h3 className="text-2xl sm:text-3xl font-display font-black text-slate-900 group-hover:text-amber-700 tracking-tight leading-tight mb-2.5 transition-colors">
+                  <div className="relative z-10 my-3 sm:my-4 text-center pl-1 sm:pl-2">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-black text-slate-900 group-hover:text-amber-700 tracking-tight leading-tight mb-2 transition-colors">
                       {book.title}
                     </h3>
-                    <p className="font-editorial italic text-slate-600 text-sm leading-relaxed max-w-xs mx-auto line-clamp-2">
+                    <p className="font-editorial italic text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto line-clamp-2">
                       {book.subtitle}
                     </p>
                   </div>
 
                   {/* Bottom of Cover: Author Seal & Reading Stats */}
-                  <div className="relative z-10 flex items-center justify-between pt-4 text-xs text-slate-600 pl-2">
-                    <div className="flex items-center gap-2">
+                  <div className="relative z-10 flex items-center justify-between pt-3 sm:pt-4 text-xs text-slate-600 pl-1 sm:pl-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       <i className="fa-solid fa-feather-pointed text-amber-600 text-xs"></i>
-                      <span className="font-sans font-bold text-slate-800">{book.author}</span>
+                      <span className="font-sans font-bold text-slate-800 text-[0.75rem] sm:text-xs truncate max-w-[120px] sm:max-w-none">{book.author}</span>
                     </div>
-                    <div className="flex items-center gap-2 tabular-nums text-[0.72rem] text-slate-500 font-semibold">
+                    <div className="flex items-center gap-1.5 sm:gap-2 tabular-nums text-[0.68rem] sm:text-[0.72rem] text-slate-500 font-semibold shrink-0">
                       <span>{stats.chapters} Bab</span>
                       <span>•</span>
                       <span>~{stats.readingMinutes} mnt</span>
@@ -161,14 +161,14 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
                 </div>
 
                 {/* Card Bottom: Synopsis & Action Triggers */}
-                <div className="p-6 bg-[#f8fafd] flex flex-col flex-grow justify-between gap-5 border-t border-slate-100">
+                <div className="p-4 sm:p-6 bg-[#f8fafd] flex flex-col flex-grow justify-between gap-4 sm:gap-5 border-t border-slate-100">
                   {/* Genre Pills */}
                   <div className="flex flex-wrap gap-1.5">
                     {book.genre &&
                       book.genre.split(',').map((g, idx) => (
                         <span
                           key={idx}
-                          className="neu-inset-sm px-3 py-1 rounded-full text-[0.68rem] font-sans font-bold text-slate-600 bg-[#eef2f7]"
+                          className="neu-inset-sm px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[0.65rem] sm:text-[0.68rem] font-sans font-bold text-slate-600 bg-[#eef2f7]"
                         >
                           {g.trim()}
                         </span>
@@ -177,12 +177,12 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
 
                   {/* Dedication / Opening Quote Snippet */}
                   {book.pages?.insideFront?.quote && (
-                    <div className="text-xs neu-inset-sm p-4 rounded-2xl relative bg-[#eef2f7] border-l-4 border-amber-500">
-                      <p className="font-editorial italic text-slate-700 leading-relaxed text-[0.85rem]">
+                    <div className="text-xs neu-inset-sm p-3.5 sm:p-4 rounded-2xl relative bg-[#eef2f7] border-l-4 border-amber-500">
+                      <p className="font-editorial italic text-slate-700 leading-relaxed text-[0.8rem] sm:text-[0.85rem]">
                         {book.pages.insideFront.quote.replace(/\*\*/g, '')}
                       </p>
                       {book.pages.insideFront.author && (
-                        <p className="text-right text-[0.72rem] text-amber-700 mt-2 font-sans font-bold">
+                        <p className="text-right text-[0.68rem] sm:text-[0.72rem] text-amber-700 mt-2 font-sans font-bold">
                           {book.pages.insideFront.author.replace(/[\*—]/g, '').trim()}
                         </p>
                       )}
@@ -190,22 +190,22 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
                   )}
 
                   {/* Dual Clay Action Buttons */}
-                  <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1 sm:pt-2">
                     <button
                       onClick={() => onSelectBook(book, '3d')}
-                      className="clay-btn-primary px-3.5 py-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
+                      className="clay-btn-primary px-2.5 sm:px-3.5 py-2.5 sm:py-3 text-[0.75rem] sm:text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer"
                       title="Buka dalam mode buku interaktif 3D"
                     >
-                      <i className="fa-solid fa-book-open-reader"></i>
+                      <i className="fa-solid fa-book-open-reader text-[0.75rem]"></i>
                       <span>Buku 3D</span>
                     </button>
 
                     <button
                       onClick={() => onSelectBook(book, 'zen')}
-                      className="clay-btn-secondary px-3.5 py-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
+                      className="clay-btn-secondary px-2.5 sm:px-3.5 py-2.5 sm:py-3 text-[0.75rem] sm:text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer"
                       title="Baca dengan format e-reader imersif tanpa gangguan"
                     >
-                      <i className="fa-solid fa-align-left text-amber-600"></i>
+                      <i className="fa-solid fa-align-left text-amber-600 text-[0.75rem]"></i>
                       <span>Mode Zen</span>
                     </button>
                   </div>
@@ -216,50 +216,50 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
         </div>
       ) : (
         /* View 2: Editorial Catalogue List View */
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
           {books.map((book, index) => {
             const stats = getReadingStats(book);
 
             return (
               <div
                 key={book.id}
-                className="clay-card group relative flex flex-col md:flex-row bg-white/95 rounded-3xl p-6 md:p-8 transition-all gap-6 items-start md:items-center justify-between border border-white"
+                className="clay-card group relative flex flex-col md:flex-row bg-white/95 rounded-3xl p-5 sm:p-6 md:p-8 transition-all gap-5 md:gap-6 items-start md:items-center justify-between border border-white"
               >
                 {/* Left Number & Identification */}
-                <div className="flex items-start md:items-center gap-6 flex-grow">
-                  <div className="font-display text-3xl md:text-5xl font-black text-amber-500/80 group-hover:text-amber-600 transition-colors tabular-nums">
+                <div className="flex items-start md:items-center gap-4 sm:gap-6 flex-grow min-w-0">
+                  <div className="font-display text-2xl sm:text-4xl md:text-5xl font-black text-amber-500/80 group-hover:text-amber-600 transition-colors tabular-nums shrink-0">
                     0{index + 1}
                   </div>
 
-                  <div className="flex flex-col gap-1.5 max-w-2xl">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <span className="clay-pill bg-amber-50 text-amber-800 text-[0.65rem] tracking-[0.2em] uppercase font-bold px-2.5 py-0.5">
+                  <div className="flex flex-col gap-1.5 max-w-2xl min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+                      <span className="clay-pill bg-amber-50 text-amber-800 text-[0.62rem] sm:text-[0.65rem] tracking-[0.18em] uppercase font-bold px-2 py-0.5">
                         {book.year_published || '2026'}
                       </span>
                       <span className="text-slate-300">•</span>
-                      <span className="text-xs text-slate-500 font-sans">
+                      <span className="text-[0.72rem] sm:text-xs text-slate-500 font-sans truncate">
                         Oleh <strong className="text-slate-800 font-bold">{book.author}</strong>
                       </span>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-xs tabular-nums text-slate-500 font-semibold">
-                        {stats.chapters} Bab (~{stats.readingMinutes} menit)
+                      <span className="text-slate-300 hidden xs:inline">•</span>
+                      <span className="text-[0.72rem] sm:text-xs tabular-nums text-slate-500 font-semibold hidden xs:inline">
+                        {stats.chapters} Bab (~{stats.readingMinutes} mnt)
                       </span>
                     </div>
 
-                    <h3 className="text-xl md:text-2xl font-display font-black text-slate-900 group-hover:text-amber-700 transition-colors">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-display font-black text-slate-900 group-hover:text-amber-700 transition-colors leading-snug">
                       {book.title}
                     </h3>
 
-                    <p className="font-editorial italic text-slate-600 text-sm leading-relaxed">
+                    <p className="font-editorial italic text-slate-600 text-xs sm:text-sm leading-relaxed line-clamp-2">
                       "{book.subtitle}"
                     </p>
 
-                    <div className="flex flex-wrap gap-1.5 mt-2">
+                    <div className="flex flex-wrap gap-1.5 mt-1.5">
                       {book.genre &&
                         book.genre.split(',').map((g, idx) => (
                           <span
                             key={idx}
-                            className="neu-inset-sm px-2.5 py-0.5 rounded-full text-[0.68rem] font-semibold text-slate-600 bg-[#eef2f7]"
+                            className="neu-inset-sm px-2.5 py-0.5 rounded-full text-[0.65rem] sm:text-[0.68rem] font-semibold text-slate-600 bg-[#eef2f7]"
                           >
                             {g.trim()}
                           </span>
@@ -269,20 +269,20 @@ export default function BookShelf({ books, onSelectBook, activeGenre }) {
                 </div>
 
                 {/* Right Action Buttons */}
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end pt-4 md:pt-0">
+                <div className="grid grid-cols-2 sm:flex items-center gap-2.5 sm:gap-3 w-full md:w-auto justify-end pt-3 md:pt-0 border-t border-slate-100 md:border-none">
                   <button
                     onClick={() => onSelectBook(book, '3d')}
-                    className="flex-1 md:flex-initial clay-btn-primary px-5 py-2.5 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
+                    className="clay-btn-primary px-4 sm:px-5 py-2.5 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <i className="fa-solid fa-book-open-reader"></i>
+                    <i className="fa-solid fa-book-open-reader text-xs"></i>
                     <span>Buku 3D</span>
                   </button>
 
                   <button
                     onClick={() => onSelectBook(book, 'zen')}
-                    className="flex-1 md:flex-initial clay-btn-secondary px-5 py-2.5 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
+                    className="clay-btn-secondary px-4 sm:px-5 py-2.5 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <i className="fa-solid fa-align-left text-amber-600"></i>
+                    <i className="fa-solid fa-align-left text-amber-600 text-xs"></i>
                     <span>Mode Zen</span>
                   </button>
                 </div>

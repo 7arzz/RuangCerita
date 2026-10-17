@@ -57,6 +57,9 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
   const numOfPapers = Math.ceil((M + 1) / 2) + 1;
   const maxLocation = numOfPapers + 1;
 
+  const touchStartXRef = useRef(null);
+  const touchStartYRef = useRef(null);
+
   // Gentle audio synthesis for paper rustle flip sound
   const playPageTurnSound = () => {
     if (!soundEnabled) return;
@@ -110,7 +113,7 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentLocation, maxLocation, soundEnabled]);
 
-  // Handle auto-resizing based on window dimensions to keep the 3D layout fit
+  // Handle auto-resizing based on window dimensions to keep the 3D layout fit across all devices
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -119,22 +122,39 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
       let bookW = 380;
       let bookH = 530;
 
-      if (width < 850) {
-        bookW = 290;
-        bookH = 420;
+      if (width < 480) {
+        bookW = 165;
+        bookH = 260;
+      } else if (width < 640) {
+        bookW = 210;
+        bookH = 320;
+      } else if (width < 960) {
+        bookW = 280;
+        bookH = 410;
       }
 
-      const targetW = bookW * 2 + 50;
-      const targetH = bookH + 190;
+      // In landscape orientation with limited height
+      if (height < 500 && width >= 480) {
+        bookH = Math.max(220, height - 120);
+        bookW = Math.round(bookH * 0.7);
+      }
+
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--book-w', `${bookW}px`);
+        containerRef.current.style.setProperty('--book-h', `${bookH}px`);
+      }
+
+      const targetW = bookW * 2 + 40;
+      const targetH = bookH + 160;
 
       let scaleX = 1;
       let scaleY = 1;
 
       if (width < targetW) {
-        scaleX = (width - 24) / targetW;
+        scaleX = (width - 20) / targetW;
       }
       if (height < targetH) {
-        scaleY = (height - 40) / targetH;
+        scaleY = (height - 30) / targetH;
       }
 
       const newScale = Math.min(scaleX, scaleY, 1);
@@ -145,10 +165,41 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
     };
 
     window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
     handleResize();
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, [book]);
+
+  // Touch Swipe Event Listeners for mobile & tablet reading
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length === 1) {
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartYRef.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartXRef.current === null || !e.changedTouches || e.changedTouches.length === 0) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartXRef.current;
+    const deltaY = touchEndY - touchStartYRef.current;
+
+    // Detect horizontal swipe if movement is greater than 35px and more horizontal than vertical
+    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+      if (deltaX < 0) {
+        goNextPage();
+      } else {
+        goPrevPage();
+      }
+    }
+    touchStartXRef.current = null;
+    touchStartYRef.current = null;
+  };
 
   const goNextPage = () => {
     if (currentLocation < maxLocation) {
@@ -222,37 +273,39 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
     <div
       ref={containerRef}
       data-ui="true"
-      className="fixed inset-0 z-[100] bg-gradient-to-br from-[#f8fafd] via-[#eef2f7] to-[#e5ecf5] text-slate-800 flex flex-col justify-between overflow-hidden select-none"
+      className="fixed inset-0 z-[100] bg-gradient-to-br from-[#f8fafd] via-[#eef2f7] to-[#e5ecf5] text-slate-800 flex flex-col justify-between overflow-hidden select-none touch-pan-y"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       {/* ── Top Header Navigation Bar ── */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 bg-[#eef2f7]/90 backdrop-blur-md border-b border-white neu-flat z-50">
+      <header className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-[#eef2f7]/95 backdrop-blur-md border-b border-white neu-flat z-50">
         {/* Left: Back button & Book Info */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             onClick={onClose}
-            className="clay-btn-secondary px-4 py-2 text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer"
-            title="Tutup dan kembali ke katalog (Esc)"
+            className="clay-btn-secondary px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0"
+            title="Tutup dan kembali ke rak (Esc)"
           >
-            <i className="fa-solid fa-arrow-left"></i>
+            <i className="fa-solid fa-arrow-left text-xs"></i>
             <span className="hidden sm:inline">Kembali ke Rak</span>
           </button>
 
-          <div className="flex flex-col ml-1">
-            <h2 className="font-display text-xs sm:text-sm font-black text-slate-900 line-clamp-1 max-w-[200px] sm:max-w-xs">
+          <div className="flex flex-col ml-1 min-w-0">
+            <h2 className="font-display text-xs sm:text-sm font-black text-slate-900 truncate max-w-[120px] xs:max-w-[170px] sm:max-w-xs md:max-w-md">
               {book.title}
             </h2>
-            <span className="text-[0.68rem] text-amber-700 font-sans font-bold">
+            <span className="text-[0.65rem] sm:text-[0.68rem] text-amber-700 font-sans font-bold truncate">
               {book.author}
             </span>
           </div>
         </div>
 
         {/* Right: Sound toggle, Fullscreen & Switch to Zen Mode */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Sound Toggle */}
           <button
             onClick={() => setSoundEnabled(!soundEnabled)}
-            className={`w-9 h-9 rounded-2xl flex items-center justify-center text-xs transition-all cursor-pointer ${
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-2xl flex items-center justify-center text-xs transition-all cursor-pointer ${
               soundEnabled
                 ? 'clay-btn-primary'
                 : 'clay-btn-secondary text-slate-400'
@@ -265,7 +318,7 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
           {/* Fullscreen Toggle */}
           <button
             onClick={toggleFullscreen}
-            className="clay-btn-secondary w-9 h-9 flex items-center justify-center text-xs transition-all hidden sm:flex cursor-pointer"
+            className="clay-btn-secondary w-9 h-9 items-center justify-center text-xs transition-all hidden md:flex cursor-pointer"
             title="Layar Penuh"
           >
             <i className={`fa-solid ${isFullscreen ? 'fa-compress' : 'fa-expand'}`}></i>
@@ -275,11 +328,11 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
           {onSwitchToZen && (
             <button
               onClick={() => onSwitchToZen(book)}
-              className="clay-btn-primary px-4 py-2 text-xs font-bold flex items-center gap-2 cursor-pointer"
-              title="Beralih ke format membaca scroll e-reader"
+              className="clay-btn-primary px-3 sm:px-4 py-1.5 sm:py-2 text-[0.72rem] sm:text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              title="Beralih ke format membaca scroll e-reader vertikal"
             >
-              <i className="fa-solid fa-align-left text-xs"></i>
-              <span>Mode Zen</span>
+              <i className="fa-solid fa-align-left text-[0.7rem]"></i>
+              <span className="hidden xs:inline">Mode Zen</span>
             </button>
           )}
         </div>
@@ -287,6 +340,11 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
 
       {/* ── Main 3D Book Viewport ── */}
       <div className="flex-1 flex flex-col items-center justify-center relative perspective-[2200px] w-full px-2 overflow-hidden">
+        {/* Mobile Swipe Hint Pill */}
+        <div className="md:hidden absolute top-2 z-30 clay-pill bg-white/90 text-[0.68rem] text-slate-600 px-3.5 py-1 flex items-center gap-2 pointer-events-none shadow-sm">
+          <i className="fa-solid fa-hand-pointer text-amber-600 text-[0.65rem] animate-pulse"></i>
+          <span>Usap layar / ketuk kiri-kanan halaman</span>
+        </div>
         <div
           style={{
             transform: `scale(${scale})`,
@@ -495,45 +553,45 @@ export default function ThreeDBook({ book, onClose, onSwitchToZen }) {
       </div>
 
       {/* ── Bottom Controls Bar ── */}
-      <footer className="px-4 py-3.5 bg-[#eef2f7]/90 backdrop-blur-md flex items-center justify-between gap-4 z-50 border-t border-white neu-flat">
-        <div className="text-[0.72rem] text-slate-500 font-sans hidden md:block">
+      <footer className="px-3 sm:px-6 py-2.5 sm:py-3.5 bg-[#eef2f7]/95 backdrop-blur-md flex items-center justify-between gap-2 sm:gap-4 z-50 border-t border-white neu-flat">
+        <div className="text-[0.72rem] text-slate-500 font-sans hidden lg:block">
           Gunakan tombol <kbd className="px-2 py-0.5 rounded-md neu-inset-sm bg-white/80 text-slate-700 font-bold">←</kbd>{' '}
-          <kbd className="px-2 py-0.5 rounded-md neu-inset-sm bg-white/80 text-slate-700 font-bold">→</kbd> atau klik kiri/kanan halaman
+          <kbd className="px-2 py-0.5 rounded-md neu-inset-sm bg-white/80 text-slate-700 font-bold">→</kbd> atau usap layar
         </div>
 
         {/* Center Page Navigators */}
-        <div className="flex items-center gap-3 mx-auto md:mx-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 mx-auto lg:mx-0 w-full sm:w-auto justify-center">
           <button
-            className="clay-btn-secondary px-4 py-2.5 text-xs font-bold rounded-2xl flex items-center gap-2 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+            className="clay-btn-secondary px-3 sm:px-4 py-2 sm:py-2.5 text-[0.72rem] sm:text-xs font-bold rounded-2xl flex items-center gap-1.5 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
             disabled={currentLocation === 1}
             onClick={goPrevPage}
             title="Balik Halaman ke Kiri"
           >
-            <i className="fa-solid fa-chevron-left text-[0.75rem]"></i>
-            <span>Sebelumnya</span>
+            <i className="fa-solid fa-chevron-left text-[0.7rem]"></i>
+            <span className="hidden xs:inline">Sebelumnya</span>
           </button>
 
-          <span className="font-display text-xs text-slate-800 neu-inset-sm bg-[#e7ecf3] px-5 py-2 rounded-full font-bold text-center min-w-[120px]">
+          <span className="font-display text-[0.68rem] sm:text-xs text-slate-800 neu-inset-sm bg-[#e7ecf3] px-3 sm:px-5 py-1.5 sm:py-2 rounded-full font-bold text-center min-w-[90px] sm:min-w-[120px] truncate">
             {currentLocation === 1
-              ? 'Sampul Depan'
+              ? 'Sampul'
               : currentLocation === maxLocation
-              ? 'Sampul Belakang'
-              : `Lembar ${currentLocation - 1} / ${numOfPapers - 1}`}
+              ? 'Belakang'
+              : `${currentLocation - 1} / ${numOfPapers - 1}`}
           </span>
 
           <button
-            className="clay-btn-primary px-4 py-2.5 text-xs font-bold rounded-2xl flex items-center gap-2 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+            className="clay-btn-primary px-3 sm:px-4 py-2 sm:py-2.5 text-[0.72rem] sm:text-xs font-bold rounded-2xl flex items-center gap-1.5 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
             disabled={currentLocation === maxLocation}
             onClick={goNextPage}
             title="Balik Halaman ke Kanan"
           >
-            <span>Selanjutnya</span>
-            <i className="fa-solid fa-chevron-right text-[0.75rem]"></i>
+            <span className="hidden xs:inline">Selanjutnya</span>
+            <i className="fa-solid fa-chevron-right text-[0.7rem]"></i>
           </button>
         </div>
 
         {/* Right: Progress percentage */}
-        <div className="text-xs tabular-nums text-amber-700 font-bold hidden md:block neu-inset-sm px-3.5 py-1.5 rounded-full bg-[#e7ecf3]">
+        <div className="text-[0.7rem] sm:text-xs tabular-nums text-amber-700 font-bold hidden sm:block neu-inset-sm px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-[#e7ecf3] shrink-0">
           {Math.round(((currentLocation - 1) / (maxLocation - 1)) * 100)}% Selesai
         </div>
       </footer>

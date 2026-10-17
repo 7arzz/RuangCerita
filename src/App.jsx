@@ -11,6 +11,7 @@ export default function App() {
   const [activeGenre, setActiveGenre] = useState("Semua");
   const [activeQuoteIdx, setActiveQuoteIdx] = useState(0);
   const [copyToast, setCopyToast] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const searchInputRef = useRef(null);
 
@@ -102,8 +103,8 @@ export default function App() {
 
       {/* Toast Notification for Copied Quote */}
       {copyToast && (
-        <div className="fixed bottom-6 right-6 z-50 clay-pill bg-white/95 text-slate-800 px-5 py-3 flex items-center gap-3 text-xs font-sans shadow-lg border border-white">
-          <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[0.65rem] shadow-sm">
+        <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 clay-pill bg-white/95 text-slate-800 px-5 py-3 flex items-center gap-3 text-xs font-sans shadow-lg border border-white max-w-sm mx-auto sm:mx-0">
+          <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[0.65rem] shadow-sm shrink-0">
             <i className="fa-solid fa-check"></i>
           </div>
           <span className="font-medium">Kutipan berhasil disalin ke papan klip</span>
@@ -134,23 +135,23 @@ export default function App() {
         <>
           {/* Top Neumorphic Navigation Bar */}
           <nav className="w-full neu-navbar sticky top-0 z-40 transition-all">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
               {/* Brand Emblem */}
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/25 border border-white/60">
-                  <i className="fa-solid fa-book-bookmark text-base"></i>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/25 border border-white/60 shrink-0">
+                  <i className="fa-solid fa-book-bookmark text-sm sm:text-base"></i>
                 </div>
                 <div>
-                  <span className="font-display font-black tracking-widest text-lg sm:text-xl text-slate-900 block leading-tight">
+                  <span className="font-display font-black tracking-widest text-base sm:text-lg md:text-xl text-slate-900 block leading-tight">
                     RUANG CERITA
                   </span>
-                  <span className="text-[0.65rem] tracking-[0.25em] uppercase text-amber-700 block font-sans font-bold">
+                  <span className="text-[0.6rem] sm:text-[0.65rem] tracking-[0.22em] uppercase text-amber-700 block font-sans font-bold">
                     Arsip Sastra Interaktif
                   </span>
                 </div>
               </div>
 
-              {/* Navigation Links */}
+              {/* Desktop Navigation Links */}
               <div className="hidden md:flex items-center gap-8 text-xs font-sans uppercase tracking-[0.16em] text-slate-600 font-semibold">
                 <a href="#koleksi" className="hover:text-amber-600 transition-colors">
                   Koleksi Cerita
@@ -164,32 +165,71 @@ export default function App() {
               </div>
 
               {/* Status & Action */}
-              <div className="flex items-center gap-3">
-                <span className="neu-inset-sm px-4 py-1.5 rounded-full text-[0.75rem] font-sans text-slate-700 font-semibold hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="neu-inset-sm px-4 py-1.5 rounded-full text-[0.75rem] font-sans text-slate-700 font-semibold hidden lg:flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
                   <span>{cerpenData.length} Karya Pilihan</span>
                 </span>
                 <a
                   href="#koleksi"
-                  className="clay-btn-primary px-5 py-2 text-xs font-sans font-bold flex items-center gap-2 cursor-pointer no-underline"
+                  className="clay-btn-primary px-3.5 sm:px-5 py-2 text-xs font-sans font-bold flex items-center gap-1.5 sm:gap-2 cursor-pointer no-underline"
                 >
-                  <i className="fa-solid fa-book-open text-[0.75rem]"></i>
+                  <i className="fa-solid fa-book-open text-[0.72rem]"></i>
                   <span>Jelajahi</span>
                 </a>
+
+                {/* Mobile Hamburger Toggle Button */}
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="md:hidden clay-btn-secondary w-9 h-9 flex items-center justify-center text-slate-700 cursor-pointer text-sm shrink-0"
+                  aria-label="Menu Navigasi"
+                >
+                  <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+                </button>
               </div>
             </div>
+
+            {/* Mobile Navigation Dropdown Drawer */}
+            {mobileMenuOpen && (
+              <div className="md:hidden px-4 pt-2 pb-6 bg-[#eef2f7]/95 backdrop-blur-lg border-b border-slate-200/80 flex flex-col gap-3 shadow-lg animate-fadeIn">
+                <a
+                  href="#koleksi"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="clay-card p-3 text-xs font-sans uppercase tracking-wider font-bold text-slate-800 flex items-center gap-3 bg-white/80"
+                >
+                  <i className="fa-solid fa-book-bookmark text-amber-600 text-sm"></i>
+                  <span>Koleksi Cerita ({cerpenData.length})</span>
+                </a>
+                <a
+                  href="#kutipan"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="clay-card p-3 text-xs font-sans uppercase tracking-wider font-bold text-slate-800 flex items-center gap-3 bg-white/80"
+                >
+                  <i className="fa-solid fa-quote-left text-amber-600 text-sm"></i>
+                  <span>Kutipan Pilihan</span>
+                </a>
+                <a
+                  href="#tentang"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="clay-card p-3 text-xs font-sans uppercase tracking-wider font-bold text-slate-800 flex items-center gap-3 bg-white/80"
+                >
+                  <i className="fa-solid fa-feather-pointed text-amber-600 text-sm"></i>
+                  <span>Tentang Penulis</span>
+                </a>
+              </div>
+            )}
           </nav>
 
           {/* Hero Section */}
-          <section className="relative pt-16 pb-12 md:pt-24 md:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center flex flex-col items-center">
+          <section className="relative pt-10 sm:pt-16 pb-10 sm:pb-14 md:pt-24 md:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center flex flex-col items-center">
             {/* Clay Pill Tagline */}
-            <div className="clay-pill bg-white/90 text-amber-800 text-[0.72rem] sm:text-xs font-sans tracking-[0.22em] uppercase font-bold px-5 py-2 mb-6 inline-flex items-center gap-2.5">
-              <i className="fa-solid fa-feather-pointed text-amber-600"></i>
+            <div className="clay-pill bg-white/90 text-amber-800 text-[0.68rem] sm:text-xs font-sans tracking-[0.2em] uppercase font-bold px-4 sm:px-5 py-1.5 sm:py-2 mb-5 sm:mb-6 inline-flex items-center gap-2">
+              <i className="fa-solid fa-feather-pointed text-amber-600 text-xs"></i>
               <span>Perpustakaan Cerpen & Serial Fiksi</span>
             </div>
 
             {/* Monument Headline */}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black tracking-tight text-slate-900 max-w-5xl leading-[1.1] mb-6">
+            <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black tracking-tight text-slate-900 max-w-5xl leading-[1.18] sm:leading-[1.1] mb-5 sm:mb-6">
               Rumah Bagi Aksara yang{" "}
               <span className="font-editorial italic font-normal text-amber-600 block sm:inline">
                 Menunggumu Pulang.
@@ -197,21 +237,21 @@ export default function App() {
             </h1>
 
             {/* Supporting Prose */}
-            <p className="font-reading text-base sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10">
+            <p className="font-reading text-sm sm:text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10 px-2">
               Selingkar imaji, romansa, dan fantasi yang diseduh menjadi untaian kisah. Nikmati pengalaman membalik lembar buku 3D interaktif atau membaca hening dalam mode zen tanpa gangguan.
             </p>
 
             {/* Quick Badges in Claymorphic Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5 text-xs font-sans text-slate-700">
-              <span className="clay-pill bg-white/90 px-4 py-2 flex items-center gap-2 font-medium">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3.5 text-[0.72rem] sm:text-xs font-sans text-slate-700">
+              <span className="clay-pill bg-white/90 px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 font-medium">
                 <i className="fa-solid fa-cube text-amber-600"></i>
                 Flipbook 3D Realistis
               </span>
-              <span className="clay-pill bg-white/90 px-4 py-2 flex items-center gap-2 font-medium">
+              <span className="clay-pill bg-white/90 px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 font-medium">
                 <i className="fa-solid fa-feather text-amber-600"></i>
                 Karya Asli Indonesia
               </span>
-              <span className="clay-pill bg-white/90 px-4 py-2 flex items-center gap-2 font-medium">
+              <span className="clay-pill bg-white/90 px-3.5 sm:px-4 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-2 font-medium">
                 <i className="fa-solid fa-mobile-screen text-amber-600"></i>
                 Akses Terbuka & Responsif
               </span>
@@ -219,32 +259,32 @@ export default function App() {
           </section>
 
           {/* Featured Story Spotlight (Claymorphic Showcase Card) */}
-          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 w-full">
-            <div className="clay-card p-8 sm:p-12 md:p-14 relative overflow-hidden bg-gradient-to-br from-[#ffffff] via-[#f7fafe] to-[#edf3fb]">
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 sm:mb-20 w-full">
+            <div className="clay-card p-5 sm:p-8 md:p-12 lg:p-14 relative overflow-hidden bg-gradient-to-br from-[#ffffff] via-[#f7fafe] to-[#edf3fb]">
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
                 {/* Left: Highlight Meta & Story Pitch */}
-                <div className="lg:col-span-7 flex flex-col items-start gap-4">
-                  <div className="clay-pill bg-amber-100 text-amber-800 px-4 py-1.5 text-[0.7rem] tracking-[0.2em] uppercase font-bold inline-flex items-center gap-2">
-                    <i className="fa-solid fa-star text-amber-600 text-[0.65rem]"></i>
+                <div className="lg:col-span-7 flex flex-col items-start gap-3.5 sm:gap-4">
+                  <div className="clay-pill bg-amber-100 text-amber-800 px-3.5 sm:px-4 py-1.5 text-[0.65rem] sm:text-[0.7rem] tracking-[0.18em] uppercase font-bold inline-flex items-center gap-2">
+                    <i className="fa-solid fa-star text-amber-600 text-[0.62rem]"></i>
                     Karya Pilihan Redaksi
                   </div>
 
-                  <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-black text-slate-900 tracking-tight leading-tight">
+                  <h2 className="text-xl xs:text-2xl sm:text-4xl md:text-5xl font-display font-black text-slate-900 tracking-tight leading-tight">
                     {featuredBook.title}
                   </h2>
 
-                  <p className="font-editorial italic text-slate-600 text-lg sm:text-xl leading-relaxed">
+                  <p className="font-editorial italic text-slate-600 text-base sm:text-xl leading-relaxed">
                     "{featuredBook.subtitle}"
                   </p>
 
                   {/* Excerpt quote */}
                   {featuredBook.pages?.insideFront?.quote && (
-                    <blockquote className="neu-inset-sm p-4 rounded-2xl my-2 text-slate-700 font-reading italic text-sm sm:text-base leading-relaxed border-l-4 border-amber-500 w-full">
+                    <blockquote className="neu-inset-sm p-3.5 sm:p-4 rounded-2xl my-1 text-slate-700 font-reading italic text-xs sm:text-base leading-relaxed border-l-4 border-amber-500 w-full">
                       {featuredBook.pages.insideFront.quote.replace(/\*\*/g, "")}
                     </blockquote>
                   )}
 
-                  <div className="flex flex-wrap items-center gap-3 text-xs font-sans text-slate-500 mt-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[0.72rem] sm:text-xs font-sans text-slate-500 mt-1">
                     <span>
                       Penulis: <strong className="text-slate-800">{featuredBook.author}</strong>
                     </span>
@@ -255,10 +295,10 @@ export default function App() {
                   </div>
 
                   {/* Dual Clay Action Buttons */}
-                  <div className="flex flex-wrap items-center gap-4 pt-4">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 sm:pt-4 w-full sm:w-auto">
                     <button
                       onClick={() => handleOpenBook(featuredBook, "3d")}
-                      className="clay-btn-primary px-7 py-3.5 text-sm flex items-center gap-2.5 cursor-pointer"
+                      className="clay-btn-primary px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
                     >
                       <i className="fa-solid fa-book-open-reader"></i>
                       <span>Buka Versi Buku 3D</span>
@@ -266,7 +306,7 @@ export default function App() {
 
                     <button
                       onClick={() => handleOpenBook(featuredBook, "zen")}
-                      className="clay-btn-secondary px-7 py-3.5 text-sm flex items-center gap-2.5 cursor-pointer"
+                      className="clay-btn-secondary px-6 sm:px-7 py-3 sm:py-3.5 text-xs sm:text-sm flex items-center justify-center gap-2.5 cursor-pointer w-full sm:w-auto"
                     >
                       <i className="fa-solid fa-align-left text-amber-600"></i>
                       <span>Baca Mode Zen</span>
@@ -275,33 +315,33 @@ export default function App() {
                 </div>
 
                 {/* Right: Graphic Book Spine Display (Tactile Clay Card) */}
-                <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                <div className="lg:col-span-5 flex justify-center lg:justify-end w-full">
                   <div
                     onClick={() => handleOpenBook(featuredBook, "3d")}
-                    className="clay-card group cursor-pointer relative w-68 sm:w-76 h-92 sm:h-100 p-8 flex flex-col justify-between bg-gradient-to-b from-white via-[#f6f9fc] to-[#e8eef6] hover:scale-[1.02] transition-transform duration-300"
+                    className="clay-card group cursor-pointer relative w-full max-w-[270px] sm:max-w-[310px] h-[350px] sm:h-[400px] p-6 sm:p-8 flex flex-col justify-between bg-gradient-to-b from-white via-[#f6f9fc] to-[#e8eef6] hover:scale-[1.02] transition-transform duration-300 mx-auto lg:mx-0"
                   >
                     <div className="flex justify-between items-start text-xs text-amber-600">
-                      <span className="clay-pill bg-amber-50 text-amber-800 text-[0.68rem] uppercase tracking-widest font-sans font-bold px-3 py-1">
+                      <span className="clay-pill bg-amber-50 text-amber-800 text-[0.65rem] sm:text-[0.68rem] uppercase tracking-widest font-sans font-bold px-2.5 sm:px-3 py-1">
                         EDISI UTAMA
                       </span>
-                      <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
-                        <i className="fa-solid fa-bookmark text-sm"></i>
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600">
+                        <i className="fa-solid fa-bookmark text-xs sm:text-sm"></i>
                       </div>
                     </div>
 
-                    <div className="text-center my-auto py-6">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center mx-auto mb-4 shadow-md shadow-amber-500/20">
-                        <i className="fa-solid fa-feather-pointed text-xl"></i>
+                    <div className="text-center my-auto py-4 sm:py-6">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-md shadow-amber-500/20">
+                        <i className="fa-solid fa-feather-pointed text-lg sm:text-xl"></i>
                       </div>
-                      <h3 className="font-display font-black text-2xl text-slate-900 group-hover:text-amber-700 transition-colors leading-tight mb-2">
+                      <h3 className="font-display font-black text-xl sm:text-2xl text-slate-900 group-hover:text-amber-700 transition-colors leading-tight mb-2">
                         {featuredBook.title}
                       </h3>
-                      <p className="font-editorial italic text-xs sm:text-sm text-slate-500">
+                      <p className="font-editorial italic text-xs sm:text-sm text-slate-500 line-clamp-2">
                         {featuredBook.subtitle}
                       </p>
                     </div>
 
-                    <div className="text-center pt-4 text-xs font-sans">
+                    <div className="text-center pt-2 sm:pt-4 text-xs font-sans">
                       <span className="clay-pill bg-white text-amber-700 px-4 py-2 flex items-center justify-center gap-2 font-bold group-hover:bg-amber-500 group-hover:text-white transition-all shadow-sm">
                         <span>Buka Halaman</span>
                         <i className="fa-solid fa-arrow-right text-[0.7rem]"></i>
@@ -314,33 +354,33 @@ export default function App() {
           </section>
 
           {/* Interactive Quote Carousel Section ("Untaian Kata Pilihan") */}
-          <section id="kutipan" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 w-full">
-            <div className="clay-card p-7 sm:p-10 relative bg-gradient-to-br from-[#ffffff] to-[#f2f6fc]">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200/60">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 text-sm">
+          <section id="kutipan" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 sm:mb-20 w-full">
+            <div className="clay-card p-5 sm:p-8 md:p-10 relative bg-gradient-to-br from-[#ffffff] to-[#f2f6fc]">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-200/60">
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-2xl bg-amber-500/15 flex items-center justify-center text-amber-600 text-xs sm:text-sm shrink-0">
                     <i className="fa-solid fa-quote-left"></i>
                   </div>
                   <div>
-                    <h2 className="text-xs font-sans tracking-[0.2em] uppercase font-bold text-slate-700">
+                    <h2 className="text-[0.72rem] sm:text-xs font-sans tracking-[0.18em] uppercase font-bold text-slate-700">
                       Untaian Kata Pilihan
                     </h2>
-                    <span className="text-[0.72rem] text-slate-500 font-sans">
+                    <span className="text-[0.68rem] sm:text-[0.72rem] text-slate-500 font-sans">
                       Kutipan sarat makna dari lembaran cerita
                     </span>
                   </div>
                 </div>
 
                 {/* Quote Switcher Controls */}
-                <div className="flex items-center gap-2 bg-[#e8edf4] p-1.5 rounded-full neu-inset-sm">
+                <div className="flex items-center gap-2 bg-[#e8edf4] p-1 sm:p-1.5 rounded-full neu-inset-sm">
                   {literaryQuotes.map((_, qIdx) => (
                     <button
                       key={qIdx}
                       onClick={() => setActiveQuoteIdx(qIdx)}
-                      className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                         activeQuoteIdx === qIdx
-                          ? "w-8 bg-amber-500 shadow-sm"
-                          : "w-2.5 bg-slate-300 hover:bg-slate-400"
+                          ? "w-6 sm:w-8 bg-amber-500 shadow-sm"
+                          : "w-2 sm:w-2.5 bg-slate-300 hover:bg-slate-400"
                       }`}
                       title={`Kutipan ${qIdx + 1}`}
                     />
@@ -349,12 +389,12 @@ export default function App() {
               </div>
 
               {/* Active Quote Content */}
-              <div className="min-h-[120px] flex flex-col justify-center">
-                <p className="font-reading text-lg sm:text-2xl text-slate-800 italic leading-relaxed mb-6">
+              <div className="min-h-[100px] sm:min-h-[120px] flex flex-col justify-center">
+                <p className="font-reading text-base sm:text-xl md:text-2xl text-slate-800 italic leading-relaxed mb-4 sm:mb-6">
                   "{literaryQuotes[activeQuoteIdx].quote}"
                 </p>
-                <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-                  <div className="flex items-center gap-2 text-xs font-sans text-slate-600">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 pt-2">
+                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[0.72rem] sm:text-xs font-sans text-slate-600">
                     <span className="text-amber-700 font-bold">
                       - {literaryQuotes[activeQuoteIdx].author}
                     </span>
@@ -364,7 +404,7 @@ export default function App() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
                     <button
                       onClick={() =>
                         handleCopyQuote(
@@ -373,7 +413,7 @@ export default function App() {
                           literaryQuotes[activeQuoteIdx].storyTitle
                         )
                       }
-                      className="clay-btn-secondary px-4 py-2 text-xs flex items-center gap-2 cursor-pointer"
+                      className="clay-btn-secondary px-3.5 sm:px-4 py-2 text-xs flex items-center gap-1.5 cursor-pointer"
                       title="Salin kutipan ini"
                     >
                       <i className="fa-regular fa-copy text-xs"></i>
@@ -387,9 +427,9 @@ export default function App() {
                         );
                         if (targetBook) handleOpenBook(targetBook, "zen");
                       }}
-                      className="clay-btn-primary px-4 py-2 text-xs flex items-center gap-2 cursor-pointer"
+                      className="clay-btn-primary px-3.5 sm:px-4 py-2 text-xs flex items-center gap-1.5 cursor-pointer"
                     >
-                      <span>Baca Cerita Ini</span>
+                      <span>Baca Cerita</span>
                       <i className="fa-solid fa-arrow-right text-[0.7rem]"></i>
                     </button>
                   </div>
@@ -399,37 +439,37 @@ export default function App() {
           </section>
 
           {/* Catalog Filter & Search Section */}
-          <section id="koleksi" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 w-full scroll-mt-24">
-            <div className="flex flex-col gap-6">
+          <section id="koleksi" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10 w-full scroll-mt-24">
+            <div className="flex flex-col gap-4 sm:gap-6">
               {/* Search Bar with Neumorphic Inset Well */}
-              <div className="relative w-full max-w-2xl mx-auto neu-inset rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-amber-500/40 transition-all">
+              <div className="relative w-full max-w-2xl mx-auto neu-inset rounded-2xl p-1 sm:p-1.5 focus-within:ring-2 focus-within:ring-amber-500/40 transition-all">
                 <div className="relative flex items-center">
-                  <i className="fa-solid fa-magnifying-glass absolute left-4 text-amber-600 text-sm pointer-events-none"></i>
+                  <i className="fa-solid fa-magnifying-glass absolute left-3.5 sm:left-4 text-amber-600 text-xs sm:text-sm pointer-events-none"></i>
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Cari judul cerpen, nama tokoh, atau sinopsis... (Tekan /)"
-                    className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 pl-11 pr-20 py-3 text-xs sm:text-sm outline-none border-none"
+                    placeholder="Cari judul cerpen, tokoh, atau sinopsis..."
+                    className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 pl-10 sm:pl-11 pr-16 sm:pr-20 py-2.5 sm:py-3 text-xs sm:text-sm outline-none border-none"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm("")}
-                      className="absolute right-12 text-slate-400 hover:text-slate-700 text-xs cursor-pointer p-1"
+                      className="absolute right-10 sm:right-12 text-slate-400 hover:text-slate-700 text-xs cursor-pointer p-1"
                       title="Hapus pencarian"
                     >
                       <i className="fa-solid fa-xmark"></i>
                     </button>
                   )}
-                  <span className="absolute right-4 text-[0.68rem] tabular-nums px-2 py-0.5 rounded-lg neu-inset-sm bg-white/70 text-slate-500 font-semibold pointer-events-none hidden sm:inline">
+                  <span className="absolute right-4 text-[0.68rem] tabular-nums px-2 py-0.5 rounded-lg neu-inset-sm bg-white/70 text-slate-500 font-semibold pointer-events-none hidden md:inline">
                     /
                   </span>
                 </div>
               </div>
 
-              {/* Genre Filter Tabs with Counts (Claymorphic Buttons) */}
-              <div className="flex flex-wrap gap-2.5 justify-center items-center">
+              {/* Genre Filter Tabs with Counts (Horizontally scrollable on mobile) */}
+              <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto no-scrollbar gap-2 sm:gap-2.5 pb-2 sm:pb-0 px-1 justify-start sm:justify-center w-full">
                 {uniqueGenres.map((genre) => {
                   const count = getGenreCount(genre);
                   const isActive = activeGenre === genre;
@@ -438,7 +478,7 @@ export default function App() {
                     <button
                       key={genre}
                       onClick={() => setActiveGenre(genre)}
-                      className={`px-5 py-2.5 text-xs sm:text-sm font-sans cursor-pointer flex items-center gap-2.5 transition-all ${
+                      className={`px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-sans cursor-pointer flex items-center gap-2 sm:gap-2.5 transition-all shrink-0 ${
                         isActive
                           ? "clay-btn-primary"
                           : "clay-btn-secondary"
@@ -446,7 +486,7 @@ export default function App() {
                     >
                       <span>{genre}</span>
                       <span
-                        className={`text-[0.68rem] tabular-nums px-2 py-0.5 rounded-full font-bold ${
+                        className={`text-[0.65rem] sm:text-[0.68rem] tabular-nums px-2 py-0.5 rounded-full font-bold ${
                           isActive
                             ? "bg-black/20 text-white"
                             : "neu-inset-sm bg-slate-200/80 text-slate-600"
@@ -462,7 +502,7 @@ export default function App() {
           </section>
 
           {/* Bookshelf Component */}
-          <main className="flex-grow pb-24 w-full">
+          <main className="flex-grow pb-16 sm:pb-24 w-full">
             {filteredBooks.length > 0 ? (
               <BookShelf
                 books={filteredBooks}
@@ -470,14 +510,14 @@ export default function App() {
                 activeGenre={activeGenre}
               />
             ) : (
-              <div className="text-center py-20 px-4 max-w-md mx-auto clay-card p-10 bg-white/90">
-                <div className="w-16 h-16 rounded-3xl bg-amber-500/15 flex items-center justify-center mx-auto mb-4 text-amber-600 text-2xl shadow-inner">
+              <div className="text-center py-14 sm:py-20 px-4 max-w-md mx-auto clay-card p-6 sm:p-10 bg-white/90">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-amber-500/15 flex items-center justify-center mx-auto mb-4 text-amber-600 text-xl sm:text-2xl shadow-inner">
                   <i className="fa-solid fa-scroll"></i>
                 </div>
-                <h3 className="font-display text-lg font-bold text-slate-800 mb-2">
+                <h3 className="font-display text-base sm:text-lg font-bold text-slate-800 mb-2">
                   Tidak Ada Cerita Ditemukan
                 </h3>
-                <p className="font-reading italic text-sm text-slate-500 mb-6">
+                <p className="font-reading italic text-xs sm:text-sm text-slate-500 mb-6">
                   Tidak ada kisah yang cocok dengan kata kunci "{searchTerm}". Silakan periksa ejaan atau pilih genre lain.
                 </p>
                 <button
@@ -494,52 +534,52 @@ export default function App() {
           </main>
 
           {/* Editorial About Section */}
-          <section id="tentang" className="bg-gradient-to-b from-[#eef2f7] to-[#e4eaf2] py-20 px-4 sm:px-6 lg:px-8 w-full border-t border-slate-200/60">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <section id="tentang" className="bg-gradient-to-b from-[#eef2f7] to-[#e4eaf2] py-14 sm:py-20 px-4 sm:px-6 lg:px-8 w-full border-t border-slate-200/60">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
               {/* Left Column: Side Facts & Metadata */}
-              <div className="lg:col-span-4 flex flex-col gap-6">
+              <div className="lg:col-span-4 flex flex-col gap-4 sm:gap-6">
                 <div>
-                  <span className="text-[0.7rem] tracking-[0.25em] uppercase font-bold text-amber-700 block mb-2 font-sans">
+                  <span className="text-[0.65rem] sm:text-[0.7rem] tracking-[0.22em] uppercase font-bold text-amber-700 block mb-1.5 font-sans">
                     Arsip & Informasi
                   </span>
-                  <h3 className="text-2xl font-display font-bold text-slate-900">
+                  <h3 className="text-xl sm:text-2xl font-display font-bold text-slate-900">
                     Mengenai Ruang Cerita
                   </h3>
                 </div>
 
-                <div className="flex flex-col gap-3.5 text-xs font-sans">
-                  <div className="clay-card p-4 bg-white/80">
-                    <span className="text-slate-500 block uppercase tracking-wider text-[0.65rem] mb-1 font-semibold">
+                <div className="flex flex-col gap-3 text-xs font-sans">
+                  <div className="clay-card p-3.5 sm:p-4 bg-white/80">
+                    <span className="text-slate-500 block uppercase tracking-wider text-[0.62rem] sm:text-[0.65rem] mb-1 font-semibold">
                       Karya & Dedikasi
                     </span>
-                    <span className="text-slate-800 font-bold text-sm">
+                    <span className="text-slate-800 font-bold text-xs sm:text-sm">
                       Andaru Ilham Amerta (7arzz)
                     </span>
                   </div>
 
-                  <div className="clay-card p-4 bg-white/80">
-                    <span className="text-slate-500 block uppercase tracking-wider text-[0.65rem] mb-1 font-semibold">
+                  <div className="clay-card p-3.5 sm:p-4 bg-white/80">
+                    <span className="text-slate-500 block uppercase tracking-wider text-[0.62rem] sm:text-[0.65rem] mb-1 font-semibold">
                       Karakteristik Bacaan
                     </span>
-                    <span className="text-slate-800 font-semibold">
+                    <span className="text-slate-800 font-semibold text-xs sm:text-sm">
                       Interaktif 3D Flipbook & E-Reader Imersif
                     </span>
                   </div>
 
-                  <div className="clay-card p-4 bg-white/80">
-                    <span className="text-slate-500 block uppercase tracking-wider text-[0.65rem] mb-1 font-semibold">
+                  <div className="clay-card p-3.5 sm:p-4 bg-white/80">
+                    <span className="text-slate-500 block uppercase tracking-wider text-[0.62rem] sm:text-[0.65rem] mb-1 font-semibold">
                       Platform & Akses
                     </span>
-                    <span className="text-slate-800 font-semibold">
+                    <span className="text-slate-800 font-semibold text-xs sm:text-sm">
                       Web Terbuka Bebas Iklan & Tanpa Pelacak
                     </span>
                   </div>
 
-                  <div className="clay-card p-4 bg-white/80">
-                    <span className="text-slate-500 block uppercase tracking-wider text-[0.65rem] mb-1 font-semibold">
+                  <div className="clay-card p-3.5 sm:p-4 bg-white/80">
+                    <span className="text-slate-500 block uppercase tracking-wider text-[0.62rem] sm:text-[0.65rem] mb-1 font-semibold">
                       Tahun Publikasi
                     </span>
-                    <span className="text-slate-800 font-semibold">
+                    <span className="text-slate-800 font-semibold text-xs sm:text-sm">
                       2026 - Edisi Digital Resmi
                     </span>
                   </div>
@@ -547,24 +587,24 @@ export default function App() {
               </div>
 
               {/* Right Column: Literary Essay / Vision */}
-              <div className="lg:col-span-8 flex flex-col gap-6 justify-center clay-card p-8 sm:p-12 bg-white/90">
-                <p className="font-editorial italic text-xl sm:text-2xl text-slate-800 leading-relaxed">
+              <div className="lg:col-span-8 flex flex-col gap-4 sm:gap-6 justify-center clay-card p-6 sm:p-10 md:p-12 bg-white/90">
+                <p className="font-editorial italic text-lg sm:text-2xl text-slate-800 leading-relaxed">
                   "Menulis adalah cara mengabadikan hal-hal yang sering kali luput oleh riuh dunia: hangatnya tatapan di koridor sekolah, keberanian merangkai mimpi di bengkel sepi, hingga satu kalimat cinta yang diucap dalam enam bahasa."
                 </p>
 
-                <p className="font-reading text-sm sm:text-base text-slate-600 leading-loose">
-                  Ruang Cerita lahir dari kerinduan akan ruang baca digital yang tenang dan menghargai sastra. Kami menghadirkan dua cara membaca yang saling melengkapi: membalik halaman buku 3D selayaknya membuka buku fisik klasik, atau menyelami barisan paragraf dalam Mode Zen yang nyaman bagi mata.
+                <p className="font-reading text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed sm:leading-loose">
+                  Ruang Cerita lahir dari kerinduan akan ruang baca digital yang tenang dan menghargai sastra. Kami menghadirkan dua cara membaca yang saling melengkapi: membalik halaman buku 3D selayaknya membuka buku fisik klasik, atau menyelami barisan paragraf dalam Mode Zen yang nyaman bagi mata di semua perangkat.
                 </p>
 
-                <div className="flex items-center gap-3.5 pt-4 border-t border-slate-200/60">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
-                    <i className="fa-solid fa-signature text-xl"></i>
+                <div className="flex items-center gap-3 pt-3 sm:pt-4 border-t border-slate-200/60">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20 shrink-0">
+                    <i className="fa-solid fa-signature text-base sm:text-xl"></i>
                   </div>
                   <div>
-                    <span className="text-sm font-sans font-bold text-slate-900 block">
+                    <span className="text-xs sm:text-sm font-sans font-bold text-slate-900 block">
                       Andaru Ilham Amerta
                     </span>
-                    <span className="text-[0.72rem] text-slate-500 font-sans block">
+                    <span className="text-[0.68rem] sm:text-[0.72rem] text-slate-500 font-sans block">
                       Penulis & Pengembang Ruang Cerita
                     </span>
                   </div>
@@ -574,19 +614,19 @@ export default function App() {
           </section>
 
           {/* Monumental Footer Section */}
-          <footer className="w-full bg-[#e6ebf2] pt-16 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-t border-white">
+          <footer className="w-full bg-[#e6ebf2] pt-12 sm:pt-16 pb-10 sm:pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-t border-white">
             <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
               {/* Neumorphic Wordmark Deboss */}
-              <div className="font-display font-black text-4xl sm:text-6xl md:text-8xl tracking-widest text-slate-300/60 select-none pointer-events-none mb-6">
+              <div className="font-display font-black text-3xl xs:text-4xl sm:text-6xl md:text-8xl tracking-wider sm:tracking-widest text-slate-300/60 select-none pointer-events-none mb-4 sm:mb-6 truncate max-w-full px-2">
                 RUANG CERITA
               </div>
 
-              <div className="max-w-xl mx-auto mb-10 text-xs sm:text-sm text-slate-600 font-reading leading-relaxed">
+              <div className="max-w-xl mx-auto mb-8 sm:mb-10 text-xs sm:text-sm text-slate-600 font-reading leading-relaxed px-2">
                 Koleksi cerpen dan serial fiksi digital. Seluruh karakter, peristiwa, dan semesta dalam karya ini adalah buah imajinasi sastra.
               </div>
 
               {/* Links & Quick Back to top */}
-              <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-sans text-slate-600 pb-10 w-full">
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-sans text-slate-600 pb-8 sm:pb-10 w-full">
                 <a href="#koleksi" className="hover:text-amber-600 transition-colors font-medium">
                   Katalog Cerita
                 </a>
@@ -598,7 +638,7 @@ export default function App() {
                 </a>
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                  className="clay-btn-secondary px-4 py-1.5 text-xs font-semibold cursor-pointer flex items-center gap-1.5"
+                  className="clay-btn-secondary px-3.5 sm:px-4 py-1.5 text-xs font-semibold cursor-pointer flex items-center gap-1.5"
                 >
                   <span>Ke Atas</span>
                   <i className="fa-solid fa-arrow-up text-[0.65rem]"></i>
@@ -606,7 +646,7 @@ export default function App() {
               </div>
 
               {/* Legal Copyright */}
-              <div className="pt-8 flex flex-col sm:flex-row items-center justify-between w-full text-[0.75rem] text-slate-500 font-sans gap-3 border-t border-slate-300/50">
+              <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between w-full text-[0.7rem] sm:text-[0.75rem] text-slate-500 font-sans gap-2 sm:gap-3 border-t border-slate-300/50">
                 <span>
                   © {new Date().getFullYear()} Ruang Cerita. Seluruh hak cipta karya sastra dilindungi.
                 </span>

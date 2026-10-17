@@ -6,6 +6,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
   const [theme, setTheme] = useState("light"); // 'dark', 'sepia', 'light'
   const [scrollProgress, setScrollProgress] = useState(0);
   const [tocOpen, setTocOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [copiedQuote, setCopiedQuote] = useState(false);
 
   const scrollRef = useRef(null);
@@ -287,22 +288,22 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "10px 16px",
-          gap: "12px",
+          padding: "8px 12px",
+          gap: "8px",
           fontFamily: "Plus Jakarta Sans, system-ui, sans-serif"
         }}
       >
         {/* Left: Back & Table of contents */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <button
             onClick={onClose}
             style={{
               display: "flex",
               alignItems: "center",
               gap: "6px",
-              fontSize: "13px",
+              fontSize: "12px",
               fontWeight: 600,
-              padding: "6px 12px",
+              padding: "6px 10px",
               borderRadius: "9999px",
               backgroundColor: "rgba(128,128,128,0.1)",
               border: `1px solid ${currentTheme.border}`,
@@ -317,14 +318,17 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
 
           {chaptersList.length > 0 && (
             <button
-              onClick={() => setTocOpen(!tocOpen)}
+              onClick={() => {
+                setTocOpen(!tocOpen);
+                if (settingsOpen) setSettingsOpen(false);
+              }}
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                fontSize: "13px",
+                fontSize: "12px",
                 fontWeight: 600,
-                padding: "6px 12px",
+                padding: "6px 10px",
                 borderRadius: "9999px",
                 backgroundColor: tocOpen ? currentTheme.accent : "rgba(128,128,128,0.1)",
                 color: tocOpen ? currentTheme.btnActiveText : "inherit",
@@ -335,7 +339,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
               title="Daftar Bab"
             >
               <i className="fa-solid fa-list-ul text-xs"></i>
-              <span className="hidden sm:inline">Daftar Bab</span>
+              <span className="hidden sm:inline">Bab</span>
             </button>
           )}
 
@@ -347,9 +351,9 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
-                fontSize: "12.5px",
+                fontSize: "12px",
                 fontWeight: 700,
-                padding: "6px 12px",
+                padding: "6px 10px",
                 borderRadius: "9999px",
                 backgroundColor: "rgba(197, 160, 89, 0.15)",
                 color: currentTheme.accent,
@@ -360,13 +364,13 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
               title="Beralih ke format buku 3D interaktif"
             >
               <i className="fa-solid fa-book-open text-xs"></i>
-              <span className="hidden md:inline">Mode 3D</span>
+              <span className="hidden xs:inline">Mode 3D</span>
             </button>
           )}
         </div>
 
         {/* Center: Title snippet (hidden on small screens) */}
-        <div className="hidden lg:flex flex-col items-center max-w-xs text-center">
+        <div className="hidden lg:flex flex-col items-center max-w-xs text-center truncate">
           <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.05em", opacity: 0.9 }}>
             {book.title}
           </span>
@@ -375,8 +379,36 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           </span>
         </div>
 
-        {/* Right: Controls (Font style, Font size, Theme) */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        {/* Mobile Settings Toggle Button (< sm) */}
+        <div className="flex sm:hidden items-center gap-2">
+          <button
+            onClick={() => {
+              setSettingsOpen(!settingsOpen);
+              if (tocOpen) setTocOpen(false);
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "12px",
+              fontWeight: 700,
+              padding: "6px 10px",
+              borderRadius: "9999px",
+              backgroundColor: settingsOpen ? currentTheme.accent : "rgba(128,128,128,0.12)",
+              color: settingsOpen ? currentTheme.btnActiveText : "inherit",
+              border: `1px solid ${currentTheme.border}`,
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            title="Pengaturan Tampilan Baca"
+          >
+            <i className="fa-solid fa-sliders text-xs"></i>
+            <span style={{ fontSize: "11px" }}>Tampilan</span>
+          </button>
+        </div>
+
+        {/* Desktop Controls (Font style, Font size, Theme) (>= sm) */}
+        <div className="hidden sm:flex items-center gap-2">
           {/* Font Serif vs Sans Toggle */}
           <div
             style={{
@@ -389,7 +421,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
             <button
               onClick={() => setFontFamily("serif")}
               style={{
-                padding: "4px 8px",
+                padding: "3px 8px",
                 fontSize: "11px",
                 fontWeight: 700,
                 borderRadius: "9999px",
@@ -406,7 +438,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
             <button
               onClick={() => setFontFamily("sans")}
               style={{
-                padding: "4px 8px",
+                padding: "3px 8px",
                 fontSize: "11px",
                 fontWeight: 700,
                 borderRadius: "9999px",
@@ -440,12 +472,12 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
                 key={key}
                 onClick={() => setFontSize(key)}
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 26,
+                  height: 26,
                   borderRadius: "50%",
                   border: "none",
                   cursor: "pointer",
-                  fontSize: "12px",
+                  fontSize: "11px",
                   fontWeight: 700,
                   backgroundColor: fontSize === key ? currentTheme.btnActive : "transparent",
                   color: fontSize === key ? currentTheme.btnActiveText : "inherit",
@@ -459,7 +491,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           </div>
 
           {/* Theme Swatches */}
-          <div style={{ display: "flex", gap: "6px", marginLeft: "4px" }}>
+          <div style={{ display: "flex", gap: "6px", marginLeft: "2px" }}>
             {[
               { key: "dark", bg: "#080b11", border: "#334155", title: "Malam Obsidian" },
               { key: "sepia", bg: "#f4ece1", border: "#8b7355", title: "Kertas Sepia" },
@@ -485,23 +517,159 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
         </div>
       </header>
 
+      {/* ── Mobile Reading Settings Drawer (< sm) ── */}
+      {settingsOpen && (
+        <div
+          className="sm:hidden"
+          style={{
+            position: "fixed",
+            top: 48,
+            right: 12,
+            left: 12,
+            zIndex: 95,
+            backgroundColor: currentTheme.surface,
+            border: `1px solid ${currentTheme.border}`,
+            borderRadius: "16px",
+            boxShadow: "0 16px 36px rgba(0,0,0,0.35)",
+            padding: "14px 16px",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            fontFamily: "Plus Jakarta Sans, system-ui, sans-serif"
+          }}
+        >
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", opacity: 0.7 }}>
+              Pengaturan Tampilan
+            </span>
+            <button
+              onClick={() => setSettingsOpen(false)}
+              style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: "14px" }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "12px", fontWeight: 600 }}>Jenis Huruf:</span>
+            <div style={{ display: "flex", backgroundColor: "rgba(128,128,128,0.12)", borderRadius: "9999px", padding: "2px" }}>
+              <button
+                onClick={() => setFontFamily("serif")}
+                style={{
+                  padding: "4px 12px",
+                  fontSize: "11.5px",
+                  fontWeight: 700,
+                  borderRadius: "9999px",
+                  border: "none",
+                  cursor: "pointer",
+                  backgroundColor: fontFamily === "serif" ? currentTheme.btnActive : "transparent",
+                  color: fontFamily === "serif" ? currentTheme.btnActiveText : "inherit"
+                }}
+              >
+                Serif
+              </button>
+              <button
+                onClick={() => setFontFamily("sans")}
+                style={{
+                  padding: "4px 12px",
+                  fontSize: "11.5px",
+                  fontWeight: 700,
+                  borderRadius: "9999px",
+                  border: "none",
+                  cursor: "pointer",
+                  backgroundColor: fontFamily === "sans" ? currentTheme.btnActive : "transparent",
+                  color: fontFamily === "sans" ? currentTheme.btnActiveText : "inherit"
+                }}
+              >
+                Sans
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "12px", fontWeight: 600 }}>Ukuran Huruf:</span>
+            <div style={{ display: "flex", backgroundColor: "rgba(128,128,128,0.12)", borderRadius: "9999px", padding: "2px", gap: "2px" }}>
+              {[
+                { key: "text-sm", label: "A-", title: "Kecil" },
+                { key: "text-base", label: "A", title: "Normal" },
+                { key: "text-lg", label: "A+", title: "Besar" }
+              ].map(({ key, label, title }) => (
+                <button
+                  key={key}
+                  onClick={() => setFontSize(key)}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: "9999px",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    backgroundColor: fontSize === key ? currentTheme.btnActive : "transparent",
+                    color: fontSize === key ? currentTheme.btnActiveText : "inherit"
+                  }}
+                  title={title}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: "12px", fontWeight: 600 }}>Tema Warna:</span>
+            <div style={{ display: "flex", gap: "10px" }}>
+              {[
+                { key: "dark", bg: "#080b11", border: "#334155", label: "Malam" },
+                { key: "sepia", bg: "#f4ece1", border: "#8b7355", label: "Sepia" },
+                { key: "light", bg: "#faf8f5", border: "#94a3b8", label: "Terang" }
+              ].map(({ key, bg, border, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setTheme(key)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                    padding: "4px 8px",
+                    borderRadius: "9999px",
+                    backgroundColor: bg,
+                    border: `2px solid ${theme === key ? currentTheme.accent : border}`,
+                    color: key === "dark" ? "#fff" : "#000",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: currentTheme.accent, display: theme === key ? "inline-block" : "none" }}></span>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Table of Contents Dropdown Drawer ── */}
       {tocOpen && (
         <div
           style={{
             position: "fixed",
-            top: 56,
-            left: 16,
+            top: 50,
+            left: 12,
+            right: 12,
             zIndex: 95,
-            width: "300px",
-            maxHeight: "75vh",
+            width: "min(320px, calc(100vw - 24px))",
+            maxHeight: "70vh",
             overflowY: "auto",
             backgroundColor: currentTheme.surface,
             border: `1px solid ${currentTheme.border}`,
             borderRadius: "16px",
             boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
             padding: "16px",
-            backdropFilter: "blur(20px)"
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)"
           }}
         >
           <div
@@ -570,7 +738,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           style={{
             maxWidth: "720px",
             margin: "0 auto",
-            padding: "80px 24px 60px",
+            padding: "clamp(36px, 8vw, 80px) clamp(16px, 4vw, 24px) clamp(30px, 6vw, 60px)",
             textAlign: "center",
             position: "relative"
           }}
@@ -607,12 +775,13 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           {/* Book Title */}
           <h1
             style={{
-              fontSize: "clamp(34px, 7vw, 56px)",
+              fontSize: "clamp(26px, 6vw, 54px)",
               fontFamily: "Cinzel, Playfair Display, serif",
               fontWeight: 800,
-              lineHeight: 1.15,
+              lineHeight: 1.18,
               marginBottom: "16px",
-              letterSpacing: "-0.01em"
+              letterSpacing: "-0.01em",
+              wordBreak: "break-word"
             }}
           >
             {book.title}
@@ -622,13 +791,13 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           {book.subtitle && (
             <p
               style={{
-                fontSize: "clamp(16px, 3.5vw, 21px)",
+                fontSize: "clamp(15px, 3.2vw, 21px)",
                 fontFamily: "Newsreader, Playfair Display, Georgia, serif",
                 fontStyle: "italic",
                 opacity: 0.82,
                 lineHeight: 1.5,
                 maxWidth: "600px",
-                margin: "0 auto 28px"
+                margin: "0 auto 24px"
               }}
             >
               {book.subtitle}
@@ -639,13 +808,15 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           <div
             style={{
               display: "inline-flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
               alignItems: "center",
-              gap: "12px",
-              padding: "6px 18px",
+              gap: "8px",
+              padding: "6px 16px",
               borderRadius: "9999px",
               backgroundColor: "rgba(128,128,128,0.08)",
               border: `1px solid ${currentTheme.border}`,
-              fontSize: "13px",
+              fontSize: "12px",
               fontFamily: "Plus Jakarta Sans, system-ui, sans-serif"
             }}
           >
@@ -662,7 +833,7 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
               width: "60px",
               height: "2px",
               backgroundColor: currentTheme.accent,
-              margin: "40px auto 0",
+              margin: "32px auto 0",
               opacity: 0.6
             }}
           />
@@ -673,9 +844,11 @@ export default function StoryReader({ book, onClose, onSwitchTo3D }) {
           style={{
             maxWidth: "680px",
             margin: "0 auto",
-            padding: "0 24px 100px",
+            padding: "0 clamp(16px, 4vw, 24px) clamp(60px, 10vw, 100px)",
             fontSize: fontSizeMap[fontSize].size,
-            lineHeight: fontSizeMap[fontSize].line
+            lineHeight: fontSizeMap[fontSize].line,
+            wordBreak: "break-word",
+            overflowWrap: "break-word"
           }}
         >
           {pagesContent.map((item, idx) => {
