@@ -145,9 +145,7 @@ export default function App() {
                   <span className="font-display font-black tracking-widest text-base sm:text-lg md:text-xl text-slate-900 block leading-tight">
                     RUANG CERITA
                   </span>
-                  <span className="text-[0.6rem] sm:text-[0.65rem] tracking-[0.22em] uppercase text-amber-700 block font-sans font-bold">
-                    Arsip Sastra Interaktif
-                  </span>
+
                 </div>
               </div>
 
@@ -161,6 +159,10 @@ export default function App() {
                 </a>
                 <a href="#tentang" className="hover:text-amber-600 transition-colors">
                   Tentang Penulis
+                </a>
+                <a href="#kolaborasi" className="hover:text-emerald-600 transition-colors flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span>Kirim Cerpen / Jasa Web</span>
                 </a>
               </div>
 
@@ -176,6 +178,18 @@ export default function App() {
                 >
                   <i className="fa-solid fa-book-open text-[0.72rem]"></i>
                   <span>Jelajahi</span>
+                </a>
+
+                {/* Direct WhatsApp CTA Button */}
+                <a
+                  href="https://wa.me/6289502567101?text=Halo%207arzz%2C%20saya%20tertarik%20untuk%20mempublikasikan%20cerpen%20%2F%20membuat%20website%20custom."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="clay-btn-secondary px-3 sm:px-4 py-2 text-xs font-sans font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 cursor-pointer no-underline"
+                  title="Hubungi 7arzz di WhatsApp (6289502567101)"
+                >
+                  <i className="fa-brands fa-whatsapp text-emerald-600 text-sm"></i>
+                  <span className="hidden sm:inline">Kontak</span>
                 </a>
 
                 {/* Mobile Hamburger Toggle Button */}
@@ -216,17 +230,20 @@ export default function App() {
                   <i className="fa-solid fa-feather-pointed text-amber-600 text-sm"></i>
                   <span>Tentang Penulis</span>
                 </a>
+                <a
+                  href="#kolaborasi"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="clay-card p-3 text-xs font-sans uppercase tracking-wider font-bold text-emerald-800 flex items-center gap-3 bg-emerald-50/80 border border-emerald-200"
+                >
+                  <i className="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                  <span>Kirim Cerpen / Jasa Web (+62 895-0256-7101)</span>
+                </a>
               </div>
             )}
           </nav>
 
           {/* Hero Section */}
           <section className="relative pt-10 sm:pt-16 pb-10 sm:pb-14 md:pt-24 md:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full text-center flex flex-col items-center">
-            {/* Clay Pill Tagline */}
-            <div className="clay-pill bg-white/90 text-amber-800 text-[0.68rem] sm:text-xs font-sans tracking-[0.2em] uppercase font-bold px-4 sm:px-5 py-1.5 sm:py-2 mb-5 sm:mb-6 inline-flex items-center gap-2">
-              <i className="fa-solid fa-feather-pointed text-amber-600 text-xs"></i>
-              <span>Perpustakaan Cerpen & Serial Fiksi</span>
-            </div>
 
             {/* Monument Headline */}
             <h1 className="text-2xl xs:text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black tracking-tight text-slate-900 max-w-5xl leading-[1.18] sm:leading-[1.1] mb-5 sm:mb-6">
@@ -439,7 +456,7 @@ export default function App() {
           </section>
 
           {/* Catalog Filter & Search Section */}
-          <section id="koleksi" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-10 w-full scroll-mt-24">
+          <section id="koleksi" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-14 w-full scroll-mt-24">
             <div className="flex flex-col gap-4 sm:gap-6">
               {/* Search Bar with Neumorphic Inset Well */}
               <div className="relative w-full max-w-2xl mx-auto neu-inset rounded-2xl p-1 sm:p-1.5 focus-within:ring-2 focus-within:ring-amber-500/40 transition-all">
@@ -502,7 +519,7 @@ export default function App() {
           </section>
 
           {/* Bookshelf Component */}
-          <main className="flex-grow pb-16 sm:pb-24 w-full">
+          <main className="flex-grow pt-6 sm:pt-8 pb-16 sm:pb-24 w-full">
             {filteredBooks.length > 0 ? (
               <BookShelf
                 books={filteredBooks}
@@ -613,6 +630,93 @@ export default function App() {
             </div>
           </section>
 
+          {/* Collaboration & Custom Web Creation Section ("Kirim Cerita & Jasa Pembuatan Web Custom") */}
+          <section id="kolaborasi" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24 w-full scroll-mt-24">
+            <div className="clay-card p-6 sm:p-10 md:p-14 relative overflow-hidden bg-gradient-to-br from-[#ffffff] via-[#f7fbf9] to-[#edf7f2] border border-emerald-100">
+              {/* Header Badge */}
+              <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+                <div className="clay-pill bg-emerald-100/90 text-emerald-800 text-[0.68rem] sm:text-xs font-sans tracking-[0.2em] uppercase font-bold px-4 py-1.5 mb-4 inline-flex items-center gap-2">
+                  <i className="fa-solid fa-handshake-angle text-emerald-600 text-xs"></i>
+                  <span>Kolaborasi Karya & Jasa Pembuatan Web</span>
+                </div>
+
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-display font-black text-slate-900 tracking-tight leading-tight mb-4">
+                  Ingin Mempublikasikan Cerpen atau Butuh{" "}
+                  <span className="font-editorial italic font-normal text-emerald-700 block sm:inline">
+                    Website Custom?
+                  </span>
+                </h2>
+
+                <p className="font-reading text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed">
+                  Ruang Cerita menyambut karya sastra dari para penulis berbakat dan juga menyediakan jasa perancangan website custom dengan sentuhan estetika premium, simulasi 3D interaktif, serta performa maksimal.
+                </p>
+              </div>
+
+              {/* 2 Feature Cards Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+                {/* Option 1: Kirim Cerpen */}
+                <div className="clay-card p-6 sm:p-8 bg-white/90 flex flex-col justify-between gap-6 border border-white hover:border-emerald-200 transition-all">
+                  <div className="flex flex-col gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center text-xl shadow-md shadow-amber-500/20">
+                      <i className="fa-solid fa-book-open"></i>
+                    </div>
+                    <div>
+                      <span className="text-[0.68rem] tracking-widest uppercase font-bold text-amber-700 block mb-1">
+                        Untuk Penulis & Kreator Cerita
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-display font-bold text-slate-900 mb-2">
+                        Publikasi Cerpen di Ruang Cerita
+                      </h3>
+                      <p className="font-reading text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        Punya naskah cerita pendek, serial fiksi, atau kisah romansa/fantasi? Kirimkan naskahmu untuk dikurasi dan diterbitkan di Ruang Cerita lengkap dengan efek buku 3D interaktif dan mode baca zen.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://wa.me/6289502567101?text=Halo%207arzz%2C%20saya%20ingin%20mengirimkan%20naskah%20cerpen%2Fcerita%20saya%20untuk%20diterbitkan%20di%20Ruang%20Cerita."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="clay-btn-primary px-5 py-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer no-underline"
+                  >
+                    <i className="fa-brands fa-whatsapp text-sm"></i>
+                    <span>Kirim Cerpen ke 7arzz</span>
+                  </a>
+                </div>
+
+                {/* Option 2: Jasa Bikin Web Custom */}
+                <div className="clay-card p-6 sm:p-8 bg-white/90 flex flex-col justify-between gap-6 border border-white hover:border-emerald-200 transition-all">
+                  <div className="flex flex-col gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xl shadow-md shadow-emerald-500/20">
+                      <i className="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <div>
+                      <span className="text-[0.68rem] tracking-widest uppercase font-bold text-emerald-700 block mb-1">
+                        Untuk Individu, Bisnis & Proyek
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-display font-bold text-slate-900 mb-2">
+                        Jasa Pembuatan Website Custom
+                      </h3>
+                      <p className="font-reading text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        Ingin website portofolio, landing page personal/perusahaan, atau aplikasi web interaktif dengan desain neumorphic/claymorphism modern, responsif di semua perangkat, dan berkecepatan tinggi? Konsultasikan langsung bersama 7arzz.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://wa.me/6289502567101?text=Halo%207arzz%2C%20saya%20ingin%20konsultasi%20pembuatan%20website%20custom%20(portofolio%2Flanding%20page%2Fsistem%20web)."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="clay-btn-secondary px-5 py-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 text-emerald-800 bg-emerald-50 hover:bg-emerald-100 cursor-pointer no-underline border border-emerald-300"
+                  >
+                    <i className="fa-solid fa-code text-xs"></i>
+                    <span>Konsultasi Web Custom</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Monumental Footer Section */}
           <footer className="w-full bg-[#e6ebf2] pt-12 sm:pt-16 pb-10 sm:pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden border-t border-white">
             <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
@@ -636,6 +740,10 @@ export default function App() {
                 <a href="#tentang" className="hover:text-amber-600 transition-colors font-medium">
                   Tentang Penulis
                 </a>
+                <a href="#kolaborasi" className="hover:text-emerald-600 transition-colors font-medium flex items-center gap-1.5">
+                  <i className="fa-brands fa-whatsapp text-emerald-600"></i>
+                  <span>Kirim Cerpen / Jasa Web</span>
+                </a>
                 <button
                   onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                   className="clay-btn-secondary px-3.5 sm:px-4 py-1.5 text-xs font-semibold cursor-pointer flex items-center gap-1.5"
@@ -651,8 +759,16 @@ export default function App() {
                   © {new Date().getFullYear()} Ruang Cerita. Seluruh hak cipta karya sastra dilindungi.
                 </span>
                 <span>
-                  Dirancang & diukir digital dengan estetika sastra oleh{" "}
-                  <span className="text-amber-700 font-bold">Andaru Ilham Amerta</span>
+                  Dirancang & diukir digital oleh{" "}
+                  <a
+                    href="https://wa.me/6289502567101"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-amber-700 hover:text-emerald-700 font-bold inline-flex items-center gap-1 transition-colors"
+                  >
+                    Andaru Ilham Amerta (7arzz)
+                    <i className="fa-brands fa-whatsapp text-emerald-600"></i>
+                  </a>
                 </span>
               </div>
             </div>
